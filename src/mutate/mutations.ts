@@ -1,54 +1,52 @@
-import type { CanonicalCase } from "../types.ts";
+import type { CaseMutationSpec, CanonicalCase, JsonPatchOperation } from "../types.ts";
 
-export interface MutationDefinition {
-  id:
-    | "factual-status-error"
-    | "omitted-evidence"
-    | "visual-diagram-error"
-    | "table-value-error"
-    | "accessibility-error"
-    | "security-error";
-  description: string;
-  expected_metric_impacts: string[];
-  expected_profiles_affected: string[];
-}
+export type MutationDefinition = CaseMutationSpec;
 
-export const MUTATIONS: MutationDefinition[] = [
+export const MUTATIONS: CaseMutationSpec[] = [
   {
     id: "factual-status-error",
     description: "Changes case status to an incorrect approved state.",
-    expected_metric_impacts: ["mutation.factual_status_detected", "regulated_evidence.score"],
-    expected_profiles_affected: ["agent_handoff", "regulated_evidence"],
+    patch: [{ op: "replace", path: "/status", value: "approved" }],
+    affected_questions: ["q1"],
+    expected_degradation: ["comprehension"],
   },
   {
     id: "omitted-evidence",
     description: "Marks one required evidence item as omitted.",
-    expected_metric_impacts: ["mutation.omitted_evidence_detected", "regulated_evidence.score"],
-    expected_profiles_affected: ["regulated_evidence"],
+    patch: [{ op: "replace", path: "/evidence/0/included", value: false }],
+    affected_questions: ["q2"],
+    expected_degradation: ["comprehension"],
   },
   {
     id: "visual-diagram-error",
     description: "Reverses one diagram edge to create an incorrect workflow.",
-    expected_metric_impacts: ["mutation.visual_diagram_detected", "dashboard.score"],
-    expected_profiles_affected: ["executive_comprehension", "dashboard"],
+    patch: [
+      { op: "replace", path: "/diagram/edges/0/from", value: "payer" },
+      { op: "replace", path: "/diagram/edges/0/to", value: "clinician" },
+    ],
+    affected_questions: ["q4"],
+    expected_degradation: ["comprehension"],
   },
   {
     id: "table-value-error",
     description: "Changes one required documentation count in the artifact representation.",
-    expected_metric_impacts: ["mutation.table_value_detected", "review.diff_noise", "regulated_evidence.score"],
-    expected_profiles_affected: ["human_review", "agent_handoff", "regulated_evidence"],
+    patch: [{ op: "replace", path: "/required_documentation_count", value: 2 }],
+    affected_questions: ["q3"],
+    expected_degradation: ["comprehension"],
   },
   {
     id: "accessibility-error",
     description: "Adds an accessibility defect marker to rendered formats.",
-    expected_metric_impacts: ["accessibility.axe_violations", "mutation.accessibility_detected"],
-    expected_profiles_affected: ["executive_comprehension", "dashboard"],
+    patch: [{ op: "replace", path: "/facts/accessibility_mutation/value", value: true }],
+    affected_questions: [],
+    expected_degradation: ["accessibility"],
   },
   {
     id: "security-error",
     description: "Adds an unsafe script marker that security scans must catch.",
-    expected_metric_impacts: ["security.no_external_scripts", "security.score"],
-    expected_profiles_affected: ["dashboard", "regulated_evidence"],
+    patch: [{ op: "replace", path: "/facts/security_mutation/value", value: true }],
+    affected_questions: [],
+    expected_degradation: ["security"],
   },
 ];
 
@@ -64,22 +62,55 @@ export function getMutation(id: MutationId): MutationDefinition {
 
 export function applyMutation(source: CanonicalCase, id: MutationId): CanonicalCase {
   const mutation = getMutation(id);
-  const next = structuredClone(source) as CanonicalCase;
+  const next = applyJsonPatch(source, mutation.patch);
   next.mutation = { id, description: mutation.description };
-
-  if (id === "factual-status-error") {
-    next.status = "approved";
-  } else if (id === "omitted-evidence") {
-    next.evidence[1] = { ...next.evidence[1], included: false };
-  } else if (id === "visual-diagram-error") {
-    next.diagram.edges[0] = { from: next.diagram.edges[0].to, to: next.diagram.edges[0].from, label: "incorrect reverse flow" };
-  } else if (id === "table-value-error") {
-    next.required_documentation_count = Math.max(0, next.required_documentation_count - 1);
-  } else if (id === "accessibility-error") {
-    next.summary = `${next.summary} Accessibility mutation: image alternative text intentionally omitted.`;
-  } else if (id === "security-error") {
-    next.summary = `${next.summary} Security mutation: unsafe remote script intentionally injected.`;
-  }
-
   return next;
+}
+
+export function applyCaseMutation(source: CanonicalCase, mutation: CaseMutationSpec): CanonicalCase {
+  const next = applyJsonPatch(source, mutation.patch);
+  next.mutation = { id: mutation.id, description: mutation.description };
+  return next;
+}
+
+export function applyJsonPatch(source: CanonicalCase, patch: JsonPatchOperation[]): CanonicalCase {
+  const next = structuredClone(source) as unknown as Record<string, unknown>;
+  for (const operation of patch) {
+    if (operation.op !== "replace") {
+      throw new Error(`Unsupported patch operation: ${operation.op}`);
+    }
+    replaceAtPointer(next, operation.path, operation.value);
+  }
+  return next as unknown as CanonicalCase;
+}
+
+function replaceAtPointer(target: Record<string, unknown>, pointer: string, value: unknown): void {
+  if (!pointer.startsWith("/")) {
+    throw new Error(`Invalid JSON pointer: ${pointer}`);
+  }
+  const parts = pointer
+    .slice(1)
+    .split("/")
+    .map((part) => part.replaceAll("~1", "/").replaceAll("~0", "~"));
+  let current: unknown = target;
+  for (const part of parts.slice(0, -1)) {
+    if (Array.isArray(current)) {
+      current = current[Number(part)];
+    } else if (current && typeof current === "object") {
+      current = (current as Record<string, unknown>)[part];
+    } else {
+      throw new Error(`Cannot resolve JSON pointer: ${pointer}`);
+    }
+  }
+  const last = parts.at(-1);
+  if (last === undefined) {
+    throw new Error(`Invalid JSON pointer: ${pointer}`);
+  }
+  if (Array.isArray(current)) {
+    current[Number(last)] = value;
+  } else if (current && typeof current === "object" && last in current) {
+    (current as Record<string, unknown>)[last] = value;
+  } else {
+    throw new Error(`Cannot replace missing JSON pointer: ${pointer}`);
+  }
 }

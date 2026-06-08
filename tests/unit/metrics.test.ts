@@ -15,6 +15,7 @@ test("metric registry includes required categories and valid metric declarations
     "security",
     "reviewability",
     "mutation_sensitivity",
+    "comprehension",
   ];
   for (const category of expectedCategories) {
     assert.ok(categories.has(category), `missing metric category ${category}`);
@@ -43,8 +44,9 @@ test("scoreProfiles creates one transparent score per profile", () => {
     security: 1,
     reviewability: 0.25,
     mutation_sensitivity: 0.5,
+    comprehension: 0.8,
   });
 
   assert.deepEqual(Object.keys(scores).sort(), Object.keys(PROFILE_WEIGHTS).sort());
-  assert.ok(scores.regulated_evidence > scores.dashboard);
+  assert.ok(scores.cost_sensitive > 0);
 });

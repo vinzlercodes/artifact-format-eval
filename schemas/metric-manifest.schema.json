@@ -10,7 +10,7 @@
     "label": { "type": "string" },
     "category": {
       "type": "string",
-      "enum": ["validity", "cost", "render", "accessibility", "security", "reviewability", "mutation_sensitivity"]
+      "enum": ["validity", "cost", "render", "accessibility", "security", "reviewability", "mutation_sensitivity", "comprehension"]
     },
     "direction": { "type": "string", "enum": ["lower_is_better", "higher_is_better", "boolean"] },
     "unit": { "type": "string" },

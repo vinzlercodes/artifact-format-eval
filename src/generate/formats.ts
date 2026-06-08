@@ -52,11 +52,23 @@ function metadataScript(metadata: StableArtifactMetadata): string {
 }
 
 function caseTable(source: CanonicalCase): string {
+  const factRows = Object.entries(source.facts ?? {})
+    .filter(([key]) => key !== "accessibility_mutation" && key !== "security_mutation")
+    .map(([, fact]) => `<tr><th>${escapeHtml(fact.label)}</th><td>${escapeHtml(String(fact.value))}</td></tr>`)
+    .join("");
   return `<table><tbody>
     <tr><th>Status</th><td>${escapeHtml(source.status)}</td></tr>
     <tr><th>Required documentation</th><td>${source.required_documentation_count}</td></tr>
     <tr><th>Evidence included</th><td>${source.evidence.filter((item) => item.included).length}/${source.evidence.length}</td></tr>
+    ${factRows}
   </tbody></table>`;
+}
+
+function evidenceList(source: CanonicalCase): string {
+  return `<h2>Evidence</h2><ul>${source.evidence
+    .filter((item) => item.included)
+    .map((item) => `<li>${escapeHtml(item.id)}: ${escapeHtml(item.title)}</li>`)
+    .join("")}</ul>`;
 }
 
 function htmlShell(title: string, metadata: StableArtifactMetadata, body: string, extraHead = ""): string {
@@ -94,25 +106,30 @@ ${body}
 
 function markdown(source: CanonicalCase): GeneratedFile {
   const metadata = stableMetadata(source, "markdown@0.1.0");
-  const evidence = source.evidence.map((item) => `| ${item.id} | ${item.title} | ${item.included ? "yes" : "no"} |`).join("\n");
+  const evidence = source.evidence.filter((item) => item.included).map((item) => `| ${item.id} | ${item.title} |`).join("\n");
+  const facts = Object.entries(source.facts ?? {})
+    .filter(([key]) => key !== "accessibility_mutation" && key !== "security_mutation")
+    .map(([, fact]) => `| ${fact.label} | ${fact.value} |`)
+    .join("\n");
   const sections = source.sections
-    .map((section) => `## ${section.title}\n\n${section.claims.map((claim) => `- ${claim.text} (${claim.evidence.join(", ")})`).join("\n")}`)
+    .map((section) => `## ${section.title}\n\n${section.claims.map((claim) => `- ${claim.text}`).join("\n")}`)
     .join("\n\n");
   return {
     path: "artifact.md",
-    content: `---\nsource_hash: ${metadata.source_hash}\ngenerator: ${metadata.generator}\nschema_version: ${metadata.schema_version}\ncase_id: ${metadata.case_id}\n---\n\n# Prior Authorization Case Summary\n\n${source.summary}\n\n| Field | Value |\n|---|---|\n| Status | ${source.status} |\n| Required documentation | ${source.required_documentation_count} |\n\n${sections}\n\n## Evidence\n\n| ID | Title | Included |\n|---|---|---|\n${evidence}\n\n## Risks\n\n${source.risks.map((risk) => `- ${risk.label} (${risk.severity})`).join("\n")}\n`,
+    content: `---\nsource_hash: ${metadata.source_hash}\ngenerator: ${metadata.generator}\nschema_version: ${metadata.schema_version}\ncase_id: ${metadata.case_id}\n---\n\n# ${source.title ?? "Artifact Summary"}\n\n${source.summary}\n\n| Field | Value |\n|---|---|\n| Status | ${source.status} |\n| Required documentation | ${source.required_documentation_count} |\n${facts}\n\n${sections}\n\n## Evidence\n\n| ID | Title |\n|---|---|\n${evidence}\n\n## Risks\n\n${source.risks.map((risk) => `- ${risk.label} (${risk.severity})`).join("\n")}\n`,
   };
 }
 
 function staticHtml(source: CanonicalCase): GeneratedFile {
   const metadata = stableMetadata(source, "html-static@0.1.0");
-  const body = `<h1>Prior Authorization Case Summary</h1>
+  const body = `<h1>${escapeHtml(source.title ?? "Artifact Summary")}</h1>
     <p>${escapeHtml(source.summary)}</p>
     ${caseTable(source)}
+    ${evidenceList(source)}
     ${source.sections.map((section) => `<section class="card"><h2>${escapeHtml(section.title)}</h2><ul>${section.claims.map((claim) => `<li>${escapeHtml(claim.text)}</li>`).join("")}</ul></section>`).join("")}
     <h2>Risks</h2>
     ${source.risks.map((risk) => `<article class="card risk-${risk.severity}">${escapeHtml(risk.label)} (${risk.severity})</article>`).join("")}`;
-  return { path: "artifact.html", content: htmlShell("Prior Authorization Case Summary", metadata, body) };
+  return { path: "artifact.html", content: htmlShell(source.title ?? "Artifact Summary", metadata, body) };
 }
 
 function svgHtml(source: CanonicalCase): GeneratedFile {
@@ -123,23 +140,25 @@ function svgHtml(source: CanonicalCase): GeneratedFile {
       return `<text x="20" y="${y}">${escapeHtml(edge.from)}</text><line x1="180" y1="${y - 5}" x2="420" y2="${y - 5}" stroke="#3166a6" marker-end="url(#arrow)"/><text x="205" y="${y - 12}">${escapeHtml(edge.label)}</text><text x="450" y="${y}">${escapeHtml(edge.to)}</text>`;
     })
     .join("");
-  const alt = source.mutation?.id === "accessibility-error" ? "" : "<title>Prior authorization workflow diagram</title>";
-  const body = `<h1>Prior Authorization Workflow</h1>${caseTable(source)}
-    <svg role="img" viewBox="0 0 650 280" aria-label="Prior authorization workflow">
+  const accessibilityMutation = source.facts?.accessibility_mutation?.value === true || source.mutation?.id === "accessibility-error";
+  const alt = accessibilityMutation ? "" : "<title>Artifact workflow diagram</title>";
+  const body = `<h1>${escapeHtml(source.title ?? "Artifact")} Workflow</h1>${caseTable(source)}${evidenceList(source)}
+    <svg role="img" viewBox="0 0 650 280"${accessibilityMutation ? "" : ' aria-label="Artifact workflow"'}>
       ${alt}
       <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3166a6"/></marker></defs>
       ${lines}
     </svg>`;
-  return { path: "artifact-svg.html", content: htmlShell("Prior Authorization Workflow", metadata, body) };
+  return { path: "artifact-svg.html", content: htmlShell(`${source.title ?? "Artifact"} Workflow`, metadata, body) };
 }
 
 function interactiveHtml(source: CanonicalCase): GeneratedFile[] {
   const metadata = stableMetadata(source, "html-interactive@0.1.0");
-  const unsafe = source.mutation?.id === "security-error" ? '<script src="https://example.com/unsafe.js"></script>' : "";
-  const body = `<h1>Prior Authorization Interactive Review</h1>
+  const unsafe = source.facts?.security_mutation?.value === true || source.mutation?.id === "security-error" ? '<script src="https://example.com/unsafe.js"></script>' : "";
+  const body = `<h1>${escapeHtml(source.title ?? "Artifact")} Interactive Review</h1>
     <div class="toolbar"><button data-filter="all">All</button><button data-filter="included">Included Evidence</button><button data-filter="risk">Risks</button></div>
     <section id="interactive-results" data-sanitizer="DOMPurify">
-      ${source.evidence.map((item) => `<article class="card evidence" data-included="${item.included}">${escapeHtml(item.id)}: ${escapeHtml(item.title)}</article>`).join("")}
+      ${source.evidence.filter((item) => item.included).map((item) => `<article class="card evidence" data-included="${item.included}">${escapeHtml(item.id)}: ${escapeHtml(item.title)}</article>`).join("")}
+      ${Object.entries(source.facts ?? {}).filter(([key]) => key !== "accessibility_mutation" && key !== "security_mutation").map(([, fact]) => `<article class="card fact">${escapeHtml(fact.label)}: ${escapeHtml(String(fact.value))}</article>`).join("")}
       ${source.risks.map((risk) => `<article class="card risk">${escapeHtml(risk.label)}</article>`).join("")}
     </section>
     ${unsafe}
@@ -156,7 +175,7 @@ for (const button of buttons) {
 }
 `;
   return [
-    { path: "artifact-interactive.html", content: htmlShell("Interactive Prior Authorization Review", metadata, body) },
+    { path: "artifact-interactive.html", content: htmlShell(`Interactive ${source.title ?? "Artifact"} Review`, metadata, body) },
     { path: "artifact-interactive.js", content: script },
   ];
 }
@@ -175,9 +194,11 @@ function notebook(source: CanonicalCase): GeneratedFile[] {
   const metadata = stableMetadata(source, "notebook@0.1.0");
   const ipynb = {
     cells: [
-      { id: "summary", cell_type: "markdown", metadata: {}, source: ["# Prior Authorization Notebook Report\n", source.summary] },
+      { id: "summary", cell_type: "markdown", metadata: {}, source: [`# ${source.title ?? "Artifact"} Notebook Report\n`, source.summary] },
       { id: "case-fields", cell_type: "code", execution_count: null, metadata: {}, outputs: [], source: [`case_status = ${JSON.stringify(source.status)}\nrequired_documentation_count = ${source.required_documentation_count}`] },
-      { id: "evidence-count", cell_type: "markdown", metadata: {}, source: [`Evidence items: ${source.evidence.length}`] },
+      { id: "facts", cell_type: "markdown", metadata: {}, source: [Object.entries(source.facts ?? {}).map(([, fact]) => `${fact.label}: ${fact.value}`).join("\n")] },
+      { id: "evidence", cell_type: "markdown", metadata: {}, source: [source.evidence.filter((item) => item.included).map((item) => `${item.id}: ${item.title}`).join("\n")] },
+      { id: "evidence-count", cell_type: "markdown", metadata: {}, source: [`Evidence items: ${source.evidence.filter((item) => item.included).length}`] },
     ],
     metadata: {
       artifact_eval: metadata,

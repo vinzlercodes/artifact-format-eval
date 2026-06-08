@@ -1,11 +1,54 @@
 {
   "case_id": "prior-auth-001",
   "mutations": [
-    "factual-status-error",
-    "omitted-evidence",
-    "visual-diagram-error",
-    "table-value-error",
-    "accessibility-error",
-    "security-error"
+    {
+      "id": "factual-status-error",
+      "description": "Changes the authorization status to an incorrect approved state.",
+      "patch": [
+        { "op": "replace", "path": "/status", "value": "approved" },
+        { "op": "replace", "path": "/facts/authorization_status/value", "value": "approved" }
+      ],
+      "affected_questions": ["q1"],
+      "expected_degradation": ["comprehension"]
+    },
+    {
+      "id": "omitted-evidence",
+      "description": "Marks the physical therapy evidence item as omitted.",
+      "patch": [{ "op": "replace", "path": "/evidence/1/included", "value": false }],
+      "affected_questions": ["q2"],
+      "expected_degradation": ["comprehension"]
+    },
+    {
+      "id": "visual-diagram-error",
+      "description": "Reverses the first workflow edge.",
+      "patch": [
+        { "op": "replace", "path": "/diagram/edges/0/from", "value": "payer" },
+        { "op": "replace", "path": "/diagram/edges/0/to", "value": "clinician" },
+        { "op": "replace", "path": "/diagram/edges/0/label", "value": "incorrect reverse flow" }
+      ],
+      "affected_questions": ["q4"],
+      "expected_degradation": ["comprehension"]
+    },
+    {
+      "id": "table-value-error",
+      "description": "Changes the required documentation count.",
+      "patch": [{ "op": "replace", "path": "/required_documentation_count", "value": 2 }],
+      "affected_questions": ["q3"],
+      "expected_degradation": ["comprehension"]
+    },
+    {
+      "id": "accessibility-error",
+      "description": "Removes the SVG accessible title in rendered diagram artifacts.",
+      "patch": [{ "op": "replace", "path": "/facts/accessibility_mutation/value", "value": true }],
+      "affected_questions": [],
+      "expected_degradation": ["accessibility"]
+    },
+    {
+      "id": "security-error",
+      "description": "Injects an unsafe remote script marker in interactive artifacts.",
+      "patch": [{ "op": "replace", "path": "/facts/security_mutation/value", "value": true }],
+      "affected_questions": [],
+      "expected_degradation": ["security"]
+    }
   ]
 }

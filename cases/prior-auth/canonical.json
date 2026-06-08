@@ -2,6 +2,8 @@
   "case_id": "prior-auth-001",
   "schema_version": "0.1.0",
   "artifact_type": "prior_auth_case_summary",
+  "domain": "prior-auth",
+  "title": "Prior Authorization Case Summary",
   "patient": {
     "age": 47,
     "sex": "F"
@@ -9,6 +11,28 @@
   "status": "additional_info_requested",
   "summary": "MRI lumbar spine requires prior authorization before scheduling.",
   "required_documentation_count": 3,
+  "facts": {
+    "authorization_status": {
+      "label": "Authorization status",
+      "value": "additional_info_requested"
+    },
+    "next_action": {
+      "label": "Next action",
+      "value": "Submit the clinical note and therapy history"
+    },
+    "high_risk": {
+      "label": "High risk",
+      "value": "Documentation mismatch between policy and clinical note"
+    },
+    "accessibility_mutation": {
+      "label": "Accessibility mutation active",
+      "value": false
+    },
+    "security_mutation": {
+      "label": "Security mutation active",
+      "value": false
+    }
+  },
   "evidence": [
     {
       "id": "ev-001",
