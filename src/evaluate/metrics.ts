@@ -1,4 +1,4 @@
-import type { FormatId, MetricCategory } from "../types.ts";
+import type { FormatId, MetricCategory, ProfileId } from "../types.ts";
 
 export interface MetricManifest {
   id: string;
@@ -146,59 +146,73 @@ export const METRIC_REGISTRY: MetricManifest[] = [
     applies_to: ALL_FORMATS,
     source: "mutation-manifest",
   },
+  {
+    id: "comprehension.reader_accuracy",
+    label: "Deterministic reader task accuracy",
+    category: "comprehension",
+    direction: "higher_is_better",
+    unit: "accuracy",
+    applies_to: ALL_FORMATS,
+    source: "answer-key",
+  },
 ];
 
-export const PROFILE_WEIGHTS: Record<string, Record<MetricCategory, number>> = {
-  human_review: {
+export const PROFILE_WEIGHTS: Record<ProfileId, Record<MetricCategory, number>> = {
+  human_reviewer: {
     validity: 15,
-    cost: 15,
-    render: 20,
+    cost: 10,
+    render: 15,
     accessibility: 15,
     security: 10,
     reviewability: 20,
     mutation_sensitivity: 5,
+    comprehension: 10,
   },
-  executive_comprehension: {
-    validity: 10,
-    cost: 5,
-    render: 30,
-    accessibility: 20,
-    security: 5,
-    reviewability: 10,
-    mutation_sensitivity: 20,
-  },
-  agent_handoff: {
+  agent_reader: {
     validity: 25,
-    cost: 20,
+    cost: 15,
     render: 10,
     accessibility: 5,
     security: 15,
-    reviewability: 15,
+    reviewability: 10,
     mutation_sensitivity: 10,
+    comprehension: 10,
   },
-  dashboard: {
+  security_sensitive: {
     validity: 10,
-    cost: 10,
-    render: 25,
-    accessibility: 20,
-    security: 15,
-    reviewability: 5,
-    mutation_sensitivity: 15,
-  },
-  regulated_evidence: {
-    validity: 25,
     cost: 5,
     render: 10,
-    accessibility: 15,
-    security: 20,
-    reviewability: 15,
+    accessibility: 10,
+    security: 35,
+    reviewability: 10,
+    mutation_sensitivity: 15,
+    comprehension: 5,
+  },
+  accessibility_first: {
+    validity: 10,
+    cost: 5,
+    render: 15,
+    accessibility: 35,
+    security: 10,
+    reviewability: 5,
     mutation_sensitivity: 10,
+    comprehension: 10,
+  },
+  cost_sensitive: {
+    validity: 10,
+    cost: 35,
+    render: 10,
+    accessibility: 10,
+    security: 10,
+    reviewability: 15,
+    mutation_sensitivity: 5,
+    comprehension: 5,
   },
 };
 
-export function scoreProfiles(categoryScores: Record<MetricCategory, number>): Record<string, number> {
-  const result: Record<string, number> = {};
-  for (const [profile, weights] of Object.entries(PROFILE_WEIGHTS)) {
+export function scoreProfiles(categoryScores: Record<MetricCategory, number>): Record<ProfileId, number> {
+  const result = {} as Record<ProfileId, number>;
+  for (const [profile, weights] of Object.entries(PROFILE_WEIGHTS) as Array<[ProfileId, Record<MetricCategory, number>]>) {
     result[profile] =
       Object.entries(weights).reduce(
         (sum, [category, weight]) => sum + categoryScores[category as MetricCategory] * weight,

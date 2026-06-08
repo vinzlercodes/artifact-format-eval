@@ -7,10 +7,13 @@
     "case_id",
     "schema_version",
     "artifact_type",
+    "domain",
+    "title",
     "patient",
     "status",
     "summary",
     "required_documentation_count",
+    "facts",
     "evidence",
     "sections",
     "diagram",
@@ -22,6 +25,8 @@
     "case_id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
     "schema_version": { "type": "string" },
     "artifact_type": { "type": "string" },
+    "domain": { "type": "string" },
+    "title": { "type": "string" },
     "patient": {
       "type": "object",
       "required": ["age", "sex"],
@@ -34,6 +39,24 @@
     "status": { "type": "string" },
     "summary": { "type": "string" },
     "required_documentation_count": { "type": "integer", "minimum": 0 },
+    "facts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["label", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string" },
+          "value": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "number" },
+              { "type": "boolean" }
+            ]
+          }
+        }
+      }
+    },
     "evidence": {
       "type": "array",
       "minItems": 1,

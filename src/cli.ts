@@ -13,9 +13,15 @@ function argValue(name: string, fallback: string): string {
   return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
 }
 
+function optionalArgValue(name: string): string | undefined {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? process.argv[index + 1] : undefined;
+}
+
 async function main(): Promise<void> {
   const command = process.argv[2];
   const caseId = argValue("--case", "prior-auth");
+  const requestedCaseId = optionalArgValue("--case");
 
   if (command === "validate") {
     await validateProject();
@@ -25,12 +31,14 @@ async function main(): Promise<void> {
     await runMutations(caseId, argValue("--mutation", "all") as MutationId | "all");
   } else if (command === "evaluate") {
     await evaluateCase(caseId);
+  } else if (command === "evaluate:reader") {
+    await evaluateCase(caseId);
   } else if (command === "evaluate:agent") {
-    console.log("Agent re-read evaluation is optional and API-key gated; no-op in v0.1 scaffold.");
+    await evaluateCase(caseId);
   } else if (command === "report") {
     await buildReport();
   } else if (command === "benchmark") {
-    await runBenchmark({ caseId });
+    await runBenchmark({ caseId: requestedCaseId });
   } else if (command === "doctor") {
     console.log(formatDoctor(await runDoctor({ ci: process.argv.includes("--ci") })));
   } else if (command === "clean") {

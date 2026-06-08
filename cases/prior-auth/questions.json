@@ -15,6 +15,17 @@
       "id": "q3",
       "prompt": "How many documentation items are required?",
       "expected": "3"
+    },
+    {
+      "id": "q4",
+      "prompt": "What action is needed next?",
+      "expected": "Submit the clinical note and therapy history",
+      "aliases": ["Submit the clinical note and therapy history before the payer deadline"]
+    },
+    {
+      "id": "q5",
+      "prompt": "Which risk has high severity?",
+      "expected": "Documentation mismatch between policy and clinical note"
     }
   ]
 }

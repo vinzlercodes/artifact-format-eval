@@ -1,18 +1,21 @@
 import { join } from "node:path";
 
-import { loadCanonicalCase } from "../case/loadCase.ts";
+import { loadBenchmarkCase } from "../case/loadCase.ts";
 import { writeJson } from "../core/fs.ts";
 import { generateArtifacts } from "../generate/formats.ts";
-import { applyMutation, getMutation, MUTATIONS, type MutationId } from "./mutations.ts";
+import { applyCaseMutation, type MutationId } from "./mutations.ts";
 
 export async function runMutations(caseId: string, mutation: MutationId | "all"): Promise<void> {
-  const source = await loadCanonicalCase(caseId);
-  const selected = mutation === "all" ? MUTATIONS.map((item) => item.id) : [mutation];
+  const benchmarkCase = await loadBenchmarkCase(caseId);
+  const selected = mutation === "all" ? benchmarkCase.mutations : benchmarkCase.mutations.filter((item) => item.id === mutation);
+  if (selected.length === 0) {
+    throw new Error(`Unknown mutation for ${caseId}: ${mutation}`);
+  }
 
-  for (const id of selected) {
-    const mutated = applyMutation(source, id);
-    const outDir = join(process.cwd(), "results", caseId, "mutations", id);
-    await generateArtifacts(mutated, { outDir, command: `pnpm mutate --case ${caseId} --mutation ${id}` });
-    await writeJson(join(outDir, "mutation.manifest.json"), getMutation(id));
+  for (const spec of selected) {
+    const mutated = applyCaseMutation(benchmarkCase.canonical, spec);
+    const outDir = join(process.cwd(), "results", caseId, "mutations", spec.id);
+    await generateArtifacts(mutated, { outDir, command: `pnpm mutate --case ${caseId} --mutation ${spec.id}` });
+    await writeJson(join(outDir, "mutation.manifest.json"), spec);
   }
 }
