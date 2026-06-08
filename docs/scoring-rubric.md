@@ -1,13 +1,14 @@
 # Scoring Rubric
 
-All five profiles are transparent weight vectors over the same raw metric categories.
+All five profiles are transparent weight vectors over the same per-format metric categories.
 
-| Metric category | Human review | Executive comprehension | Agent handoff | Dashboard | Regulated evidence |
+| Metric category | Human reviewer | Agent reader | Security sensitive | Accessibility first | Cost sensitive |
 |---|---:|---:|---:|---:|---:|
-| Validity | 15 | 10 | 25 | 10 | 25 |
-| Cost | 15 | 5 | 20 | 10 | 5 |
-| Render | 20 | 30 | 10 | 25 | 10 |
-| Accessibility | 15 | 20 | 5 | 20 | 15 |
-| Security | 10 | 5 | 15 | 15 | 20 |
-| Reviewability | 20 | 10 | 15 | 5 | 15 |
-| Mutation sensitivity | 5 | 20 | 10 | 15 | 10 |
+| Validity | 15 | 25 | 10 | 10 | 10 |
+| Cost | 10 | 15 | 5 | 5 | 35 |
+| Render | 15 | 10 | 10 | 15 | 10 |
+| Accessibility | 15 | 5 | 10 | 35 | 10 |
+| Security | 10 | 15 | 35 | 10 | 10 |
+| Reviewability | 20 | 10 | 10 | 5 | 15 |
+| Mutation sensitivity | 5 | 10 | 15 | 10 | 5 |
+| Comprehension | 10 | 10 | 5 | 10 | 5 |

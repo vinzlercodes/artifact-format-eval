@@ -1,0 +1,10 @@
+{
+  "case_id": "incident-report-001",
+  "questions": [
+    { "id": "q1", "prompt": "What is the incident status?", "expected": "resolved" },
+    { "id": "q2", "prompt": "What caused the incident?", "expected": "exhausted connection pool" },
+    { "id": "q3", "prompt": "When did the incident begin?", "expected": "09:42 UTC" },
+    { "id": "q4", "prompt": "What action is needed next?", "expected": "add pool saturation alert" },
+    { "id": "q5", "prompt": "Which risk has high severity?", "expected": "Pool saturation recurs without alerting" }
+  ]
+}

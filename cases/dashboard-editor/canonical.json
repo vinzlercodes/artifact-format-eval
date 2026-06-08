@@ -1,0 +1,31 @@
+{
+  "case_id": "dashboard-editor-001",
+  "schema_version": "0.1.0",
+  "artifact_type": "dashboard_editor_state",
+  "domain": "dashboard-editor",
+  "title": "Revenue Dashboard Editor State",
+  "patient": { "age": 0, "sex": "X" },
+  "status": "draft_needs_review",
+  "summary": "Revenue dashboard editor has a draft filter change that needs review before publishing.",
+  "required_documentation_count": 3,
+  "facts": {
+    "editor_status": { "label": "Editor status", "value": "draft_needs_review" },
+    "active_filter": { "label": "Active filter", "value": "region = West" },
+    "pending_change": { "label": "Pending change", "value": "hide churned accounts" },
+    "next_action": { "label": "Next action", "value": "review filter impact before publish" },
+    "accessibility_mutation": { "label": "Accessibility mutation active", "value": false },
+    "security_mutation": { "label": "Security mutation active", "value": false }
+  },
+  "evidence": [
+    { "id": "ev-001", "title": "Draft filter is region = West", "included": true },
+    { "id": "ev-002", "title": "Pending change hides churned accounts", "included": true },
+    { "id": "ev-003", "title": "Publish checklist requires filter-impact review", "included": true }
+  ],
+  "sections": [
+    { "id": "state", "title": "Editor State", "claims": [{ "id": "claim-001", "text": "The active filter is region = West.", "evidence": ["ev-001"] }, { "id": "claim-002", "text": "The pending change hides churned accounts.", "evidence": ["ev-002"] }] },
+    { "id": "publish", "title": "Publish Readiness", "claims": [{ "id": "claim-003", "text": "Review filter impact before publish.", "evidence": ["ev-003"] }] }
+  ],
+  "diagram": { "edges": [{ "from": "filter_panel", "to": "preview_chart", "label": "updates" }, { "from": "preview_chart", "to": "reviewer", "label": "shows impact" }, { "from": "reviewer", "to": "publish", "label": "approves" }] },
+  "risks": [{ "id": "risk-001", "label": "Published dashboard hides churned accounts unexpectedly", "severity": "high" }, { "id": "risk-002", "label": "Regional filter confuses comparison", "severity": "medium" }],
+  "questions": ["What is the editor status?", "What active filter is set?", "What pending change is present?", "What action is needed next?", "Which risk has high severity?"]
+}

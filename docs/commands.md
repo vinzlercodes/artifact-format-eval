@@ -31,7 +31,7 @@ pnpm doctor --ci
 pnpm validate
 ```
 
-Validates the canonical prior-auth case and metric registry schemas.
+Validates all coverage fixture canonical cases and metric registry schemas.
 
 ```bash
 pnpm typecheck
@@ -75,7 +75,21 @@ Generates one mutation variant.
 pnpm evaluate --case prior-auth
 ```
 
-Writes raw, normalized, and profile scores.
+Writes raw metrics, compact per-format scores, reader-task results, runtime checks, evidence,
+legacy compatibility score summaries, and mutation impact files when evaluating mutation runs.
+
+```bash
+pnpm evaluate:reader --case prior-auth
+```
+
+Runs deterministic local reader-task scoring. This is answer-key coverage, not a human study
+and not a live LLM call.
+
+```bash
+pnpm evaluate:agent --case prior-auth
+```
+
+Compatibility alias for `evaluate:reader`; it does not call an API.
 
 ```bash
 pnpm report
@@ -114,10 +128,4 @@ coverage/
 It does not remove dependencies or source files.
 
 ## Optional agent evaluation
-
-```bash
-pnpm evaluate:agent --case prior-auth
-```
-
-This is a placeholder in v0.1. Future versions can wire provider-specific API keys here without
-making normal CI depend on live model calls.
+Live provider-backed agent evaluation is not implemented. Normal verification is API-key-free.

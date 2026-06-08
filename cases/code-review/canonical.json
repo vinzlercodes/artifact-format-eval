@@ -1,0 +1,59 @@
+{
+  "case_id": "code-review-001",
+  "schema_version": "0.1.0",
+  "artifact_type": "code_review_summary",
+  "domain": "code-review",
+  "title": "Checkout Validation Code Review",
+  "patient": { "age": 0, "sex": "X" },
+  "status": "changes_requested",
+  "summary": "Checkout validation review found a blocking quantity bug and one follow-up accessibility issue.",
+  "required_documentation_count": 2,
+  "facts": {
+    "review_status": { "label": "Review status", "value": "changes_requested" },
+    "blocking_file": { "label": "Blocking file", "value": "src/checkout/quantity.ts" },
+    "blocking_issue": { "label": "Blocking issue", "value": "zero quantity can be submitted" },
+    "next_action": { "label": "Next action", "value": "reject zero quantity before payment" },
+    "accessibility_mutation": { "label": "Accessibility mutation active", "value": false },
+    "security_mutation": { "label": "Security mutation active", "value": false }
+  },
+  "evidence": [
+    { "id": "ev-001", "title": "Diff shows quantity validation allows zero", "included": true },
+    { "id": "ev-002", "title": "Test plan covers positive quantities only", "included": true },
+    { "id": "ev-003", "title": "Submit button lacks disabled-state announcement", "included": true }
+  ],
+  "sections": [
+    {
+      "id": "blocking_findings",
+      "title": "Blocking Findings",
+      "claims": [
+        { "id": "claim-001", "text": "The checkout form can submit a zero quantity.", "evidence": ["ev-001"] },
+        { "id": "claim-002", "text": "The fix should reject zero quantity before payment.", "evidence": ["ev-001", "ev-002"] }
+      ]
+    },
+    {
+      "id": "follow_up",
+      "title": "Follow Up",
+      "claims": [
+        { "id": "claim-003", "text": "The disabled submit button needs an accessible announcement.", "evidence": ["ev-003"] }
+      ]
+    }
+  ],
+  "diagram": {
+    "edges": [
+      { "from": "cart_form", "to": "quantity_validator", "label": "submits quantity" },
+      { "from": "quantity_validator", "to": "payment_request", "label": "allows valid values" },
+      { "from": "reviewer", "to": "author", "label": "requests change" }
+    ]
+  },
+  "risks": [
+    { "id": "risk-001", "label": "Zero quantity reaches payment", "severity": "high" },
+    { "id": "risk-002", "label": "Regression tests miss boundary values", "severity": "medium" }
+  ],
+  "questions": [
+    "What is the review status?",
+    "Which file contains the blocking issue?",
+    "What blocking issue was found?",
+    "What action is needed next?",
+    "Which risk has high severity?"
+  ]
+}

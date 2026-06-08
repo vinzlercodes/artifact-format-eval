@@ -1,0 +1,11 @@
+{
+  "case_id": "research-explainer-001",
+  "mutations": [
+    { "id": "factual-status-error", "description": "Changes the concept to fine tuning.", "patch": [{ "op": "replace", "path": "/facts/core_concept/value", "value": "fine tuning" }], "affected_questions": ["q1"], "expected_degradation": ["comprehension"] },
+    { "id": "omitted-evidence", "description": "Omits citation review evidence.", "patch": [{ "op": "replace", "path": "/evidence/2/included", "value": false }], "affected_questions": ["q4"], "expected_degradation": ["comprehension"] },
+    { "id": "visual-diagram-error", "description": "Reverses retriever to generator flow.", "patch": [{ "op": "replace", "path": "/diagram/edges/1/from", "value": "generator" }, { "op": "replace", "path": "/diagram/edges/1/to", "value": "retriever" }], "affected_questions": ["q2"], "expected_degradation": ["comprehension"] },
+    { "id": "table-value-error", "description": "Changes documentation count.", "patch": [{ "op": "replace", "path": "/required_documentation_count", "value": 2 }], "affected_questions": ["q3"], "expected_degradation": ["comprehension"] },
+    { "id": "accessibility-error", "description": "Removes SVG accessible naming.", "patch": [{ "op": "replace", "path": "/facts/accessibility_mutation/value", "value": true }], "affected_questions": [], "expected_degradation": ["accessibility"] },
+    { "id": "security-error", "description": "Injects an unsafe script marker.", "patch": [{ "op": "replace", "path": "/facts/security_mutation/value", "value": true }], "affected_questions": [], "expected_degradation": ["security"] }
+  ]
+}

@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { listCaseIds } from "./case/loadCase.ts";
 
 const exec = promisify(execFile);
 
@@ -26,12 +27,20 @@ async function version(id: string, command: string, args: string[]): Promise<Doc
 }
 
 export async function runDoctor(_options: { ci?: boolean } = {}): Promise<DoctorResult> {
+  const caseIds = await listCaseIds();
   const checks: DoctorCheck[] = [
     await version("node", "node", ["--version"]),
     await version("pnpm", "pnpm", ["--version"]),
     await version("python", "python3", ["--version"]),
     await version("uv", "uv", ["--version"]),
-    { id: "case-prior-auth", ok: existsSync(join(process.cwd(), "cases", "prior-auth", "canonical.json")), detail: "synthetic prior-auth case" },
+    await version("playwright", "pnpm", ["exec", "playwright", "--version"]),
+    {
+      id: "coverage-fixtures",
+      ok: ["prior-auth", "code-review", "incident-report", "research-explainer", "dashboard-editor"].every((caseId) =>
+        existsSync(join(process.cwd(), "cases", caseId, "canonical.json")),
+      ),
+      detail: caseIds.join(", "),
+    },
     { id: "api-keys", ok: true, detail: "no API keys required for normal benchmark" },
   ];
   return { apiKeysRequired: false, checks };

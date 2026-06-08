@@ -31,8 +31,12 @@ The benchmark evaluates fitness-for-task, not universal artifact superiority.
 Volatile metadata is excluded from `diff_noise.normalized` and included in
 `reproducibility.traceability`.
 
-## MVP v0.1 claim
+## Current claim
 
-This harness can generate comparable artifact variants from one canonical source and
-automatically measure schema validity, artifact cost, render quality, accessibility issues,
-security violations, diff noise, and mutation impact.
+This harness generates comparable artifact variants from small controlled fixtures and
+automatically measures per-format schema validity, artifact cost, render quality,
+accessibility signals, security violations, reviewability, deterministic reader-task coverage,
+and observed mutation impact.
+
+Reader-task coverage is local answer-key matching. It is useful for regression testing and
+controlled comparison, but it is not a substitute for human studies or live model evaluation.

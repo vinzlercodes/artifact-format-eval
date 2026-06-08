@@ -1,0 +1,11 @@
+{
+  "case_id": "dashboard-editor-001",
+  "mutations": [
+    { "id": "factual-status-error", "description": "Marks the draft as published.", "patch": [{ "op": "replace", "path": "/facts/editor_status/value", "value": "published" }], "affected_questions": ["q1"], "expected_degradation": ["comprehension"] },
+    { "id": "omitted-evidence", "description": "Omits pending change evidence.", "patch": [{ "op": "replace", "path": "/evidence/1/included", "value": false }], "affected_questions": ["q3"], "expected_degradation": ["comprehension"] },
+    { "id": "visual-diagram-error", "description": "Reverses preview flow.", "patch": [{ "op": "replace", "path": "/diagram/edges/0/from", "value": "preview_chart" }, { "op": "replace", "path": "/diagram/edges/0/to", "value": "filter_panel" }], "affected_questions": ["q4"], "expected_degradation": ["comprehension"] },
+    { "id": "table-value-error", "description": "Changes documentation count.", "patch": [{ "op": "replace", "path": "/required_documentation_count", "value": 1 }], "affected_questions": ["q4"], "expected_degradation": ["comprehension"] },
+    { "id": "accessibility-error", "description": "Removes SVG accessible naming.", "patch": [{ "op": "replace", "path": "/facts/accessibility_mutation/value", "value": true }], "affected_questions": [], "expected_degradation": ["accessibility"] },
+    { "id": "security-error", "description": "Injects an unsafe script marker.", "patch": [{ "op": "replace", "path": "/facts/security_mutation/value", "value": true }], "affected_questions": [], "expected_degradation": ["security"] }
+  ]
+}
