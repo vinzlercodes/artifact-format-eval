@@ -1,0 +1,10 @@
+{
+  "case_id": "dashboard-editor-001",
+  "questions": [
+    { "id": "q1", "prompt": "What is the editor status?", "expected": "draft_needs_review" },
+    { "id": "q2", "prompt": "What active filter is set?", "expected": "region = West" },
+    { "id": "q3", "prompt": "What pending change is present?", "expected": "hide churned accounts" },
+    { "id": "q4", "prompt": "What action is needed next?", "expected": "review filter impact before publish" },
+    { "id": "q5", "prompt": "Which risk has high severity?", "expected": "Published dashboard hides churned accounts unexpectedly" }
+  ]
+}

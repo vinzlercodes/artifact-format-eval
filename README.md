@@ -1,11 +1,12 @@
 # Artifact Format Evaluation Harness
 
-Benchmark harness for comparing agent artifact formats from one canonical source.
+Benchmark harness for comparing agent artifact formats from small controlled coverage fixtures.
 
-MVP v0.1 compares one synthetic prior-authorization case across Markdown, static HTML,
-HTML+SVG, interactive HTML, JSON+renderer, and notebook-style output. It measures schema
-validity, artifact cost, render hygiene, accessibility signals, sandbox security, diff noise,
-and mutation impact.
+The benchmark compares Markdown, static HTML, HTML+SVG, interactive HTML, JSON+renderer,
+and notebook-style output across five fixture domains: prior authorization, code review,
+incident reports, research explainers, and dashboard-editor state. It measures per-format
+validity, artifact cost, render hygiene, accessibility signals, sandbox security,
+reviewability, deterministic reader-task coverage, and observed mutation impact.
 
 ## Start here
 
@@ -60,6 +61,7 @@ uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/art
 ```bash
 pnpm validate
 pnpm generate --case prior-auth
+pnpm evaluate:reader --case prior-auth
 pnpm mutate --case prior-auth --mutation all
 pnpm evaluate --case prior-auth
 pnpm report
@@ -69,14 +71,19 @@ pnpm clean
 pnpm verify
 ```
 
-`pnpm evaluate:agent --case prior-auth` is intentionally optional and API-key gated. It is not
-required for normal CI.
+`pnpm evaluate:reader --case prior-auth` performs deterministic local reader-task scoring.
+`pnpm evaluate:agent --case prior-auth` is retained as a compatibility alias for
+`evaluate:reader`; it does not call an API.
 
 ## Output
 
 ```text
 results/prior-auth/baseline/
 results/prior-auth/mutations/
+results/code-review/
+results/incident-report/
+results/research-explainer/
+results/dashboard-editor/
 site-dist/
 ```
 
@@ -93,6 +100,11 @@ results/prior-auth/baseline/artifact-svg.html
 results/prior-auth/baseline/artifact-interactive.html
 results/prior-auth/baseline/artifact.json
 results/prior-auth/baseline/artifact.ipynb
+results/prior-auth/baseline/metrics.raw.by-format.json
+results/prior-auth/baseline/scores.by-format.json
+results/prior-auth/baseline/comprehension.by-format.json
+results/prior-auth/baseline/runtime.by-format.json
+results/prior-auth/baseline/evidence.by-format.json
 results/prior-auth/baseline/scores.raw.json
 results/prior-auth/baseline/scores.normalized.json
 results/prior-auth/baseline/scores.by-profile.json
@@ -111,6 +123,6 @@ results/prior-auth/mutations/security-error/
 
 ## Current scope
 
-This is v0.1. It has one synthetic prior-auth case, six formats, six controlled mutations,
-automated metrics, notebook validation, and a generated static report. Human studies and live
-agent re-read evaluation are intentionally not required for normal setup.
+This is a local deterministic benchmark. The five cases are intentionally small coverage
+fixtures, not five full research studies. Human studies and live LLM re-read evaluation are
+intentionally out of scope for normal setup.
