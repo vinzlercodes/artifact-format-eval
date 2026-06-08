@@ -7,3 +7,5 @@
 - Interactive artifacts may score better on task completion but worse on security and maintainability.
 - Agent re-read accuracy depends on the chosen model and prompt.
 - Synthetic prior-auth cases are not clinical or payer guidance.
+- The five domains are small coverage fixtures, not full research studies.
+- Deterministic reader-task scoring is answer-key coverage, not human comprehension.
