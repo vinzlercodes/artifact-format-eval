@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://artifact-format-eval.local/schemas/metric-manifest.schema.json",
+  "title": "Metric manifest entry",
+  "type": "object",
+  "required": ["id", "label", "category", "direction", "unit", "applies_to", "source"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9_.-]+$" },
+    "label": { "type": "string" },
+    "category": {
+      "type": "string",
+      "enum": ["validity", "cost", "render", "accessibility", "security", "reviewability", "mutation_sensitivity"]
+    },
+    "direction": { "type": "string", "enum": ["lower_is_better", "higher_is_better", "boolean"] },
+    "unit": { "type": "string" },
+    "applies_to": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["markdown", "html-static", "html-svg", "html-interactive", "json-renderer", "notebook"]
+      }
+    },
+    "source": { "type": "string" }
+  }
+}

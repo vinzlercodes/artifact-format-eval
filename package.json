@@ -1,0 +1,41 @@
+{
+  "name": "artifact-format-eval",
+  "version": "0.1.0",
+  "description": "Benchmark harness for comparing agent artifact formats from one canonical source.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --import tsx --test --test-concurrency=1 tests/unit/*.test.ts tests/fixture/*.test.ts tests/security/*.test.ts",
+    "validate": "node --import tsx src/cli.ts validate",
+    "generate": "node --import tsx src/cli.ts generate",
+    "mutate": "node --import tsx src/cli.ts mutate",
+    "evaluate": "node --import tsx src/cli.ts evaluate",
+    "evaluate:agent": "node --import tsx src/cli.ts evaluate:agent",
+    "report": "node --import tsx src/cli.ts report",
+    "benchmark": "node --import tsx src/cli.ts benchmark",
+    "doctor": "node --import tsx src/cli.ts doctor",
+    "clean": "node --import tsx src/cli.ts clean",
+    "typecheck": "tsc --noEmit",
+    "python:test": "uv run pytest",
+    "notebook:build": "uv run python -m artifact_eval_notebook build --case prior-auth",
+    "notebook:validate": "uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/artifact.ipynb",
+    "verify": "pnpm validate && pnpm typecheck && pnpm test && uv run pytest && pnpm benchmark && uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/artifact.ipynb && pnpm doctor --ci"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "dompurify": "^3.2.6",
+    "jsdom": "^26.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "optionalDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.53.0"
+  }
+}

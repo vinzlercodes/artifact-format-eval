@@ -1,0 +1,11 @@
+{
+  "case_id": "prior-auth-001",
+  "mutations": [
+    "factual-status-error",
+    "omitted-evidence",
+    "visual-diagram-error",
+    "table-value-error",
+    "accessibility-error",
+    "security-error"
+  ]
+}

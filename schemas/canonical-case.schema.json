@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://artifact-format-eval.local/schemas/canonical-case.schema.json",
+  "title": "Canonical benchmark case",
+  "type": "object",
+  "required": [
+    "case_id",
+    "schema_version",
+    "artifact_type",
+    "patient",
+    "status",
+    "summary",
+    "required_documentation_count",
+    "evidence",
+    "sections",
+    "diagram",
+    "risks",
+    "questions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "schema_version": { "type": "string" },
+    "artifact_type": { "type": "string" },
+    "patient": {
+      "type": "object",
+      "required": ["age", "sex"],
+      "additionalProperties": false,
+      "properties": {
+        "age": { "type": "integer", "minimum": 0, "maximum": 120 },
+        "sex": { "type": "string", "enum": ["F", "M", "X"] }
+      }
+    },
+    "status": { "type": "string" },
+    "summary": { "type": "string" },
+    "required_documentation_count": { "type": "integer", "minimum": 0 },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "included"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "included": { "type": "boolean" }
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "claims"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "claims": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "text", "evidence"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string" },
+                "text": { "type": "string" },
+                "evidence": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "diagram": {
+      "type": "object",
+      "required": ["edges"],
+      "additionalProperties": false,
+      "properties": {
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to", "label"],
+            "additionalProperties": false,
+            "properties": {
+              "from": { "type": "string" },
+              "to": { "type": "string" },
+              "label": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "severity"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "severity": { "type": "string", "enum": ["low", "medium", "high"] }
+        }
+      }
+    },
+    "questions": { "type": "array", "items": { "type": "string" } },
+    "mutation": { "type": "object" }
+  }
+}
