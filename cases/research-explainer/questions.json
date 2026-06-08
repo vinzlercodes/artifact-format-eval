@@ -1,0 +1,10 @@
+{
+  "case_id": "research-explainer-001",
+  "questions": [
+    { "id": "q1", "prompt": "What concept is explained?", "expected": "retrieval-augmented generation", "aliases": ["RAG"] },
+    { "id": "q2", "prompt": "What is the first step?", "expected": "retrieve relevant passages" },
+    { "id": "q3", "prompt": "What action is needed next?", "expected": "verify citations against retrieved passages" },
+    { "id": "q4", "prompt": "Which evidence item covers citation review?", "expected": "ev-003" },
+    { "id": "q5", "prompt": "Which risk has high severity?", "expected": "Generated answer cites an unsupported passage" }
+  ]
+}
