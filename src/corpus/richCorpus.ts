@@ -5,7 +5,11 @@ import { canonicalHash } from "../core/hash.ts";
 import { writeJson, writeText } from "../core/fs.ts";
 
 function esc(value: string): string {
-  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 function metadata(source: CanonicalCase, generator: string): string {
@@ -23,22 +27,35 @@ function rows(source: CanonicalCase): string {
     `<tr><th>Required documentation</th><td data-field="required_documentation_count">${source.required_documentation_count}</td></tr>`,
     ...Object.entries(source.facts ?? {})
       .filter(([key]) => key !== "accessibility_mutation" && key !== "security_mutation")
-      .map(([key, fact]) => `<tr><th>${esc(fact.label)}</th><td data-fact="${esc(key)}">${esc(String(fact.value))}</td></tr>`),
+      .map(
+        ([key, fact]) =>
+          `<tr><th>${esc(fact.label)}</th><td data-fact="${esc(key)}">${esc(String(fact.value))}</td></tr>`,
+      ),
   ].join("");
 }
 
 function diagramText(source: CanonicalCase): string {
-  return source.diagram.edges.map((edge, index) => `${index}: ${edge.from} -> ${edge.to}: ${edge.label}`).join("\n");
+  return source.diagram.edges
+    .map((edge, index) => `${index}: ${edge.from} -> ${edge.to}: ${edge.label}`)
+    .join("\n");
 }
 
 function evidenceHtml(source: CanonicalCase): string {
   return source.evidence
     .filter((item) => item.included)
-    .map((item) => `<li data-evidence-id="${esc(item.id)}">${esc(item.id)}: ${esc(item.title)}</li>`)
+    .map(
+      (item) => `<li data-evidence-id="${esc(item.id)}">${esc(item.id)}: ${esc(item.title)}</li>`,
+    )
     .join("");
 }
 
-function htmlShell(source: CanonicalCase, title: string, generator: string, body: string, script = ""): string {
+function htmlShell(
+  source: CanonicalCase,
+  title: string,
+  generator: string,
+  body: string,
+  script = "",
+): string {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -71,7 +88,10 @@ ${script}
 `;
 }
 
-export async function writeRichCorpus(source: CanonicalCase, outDir: string): Promise<CorpusManifest> {
+export async function writeRichCorpus(
+  source: CanonicalCase,
+  outDir: string,
+): Promise<CorpusManifest> {
   const caseId = source.case_id.replace(/-001$/, "");
   const runId = "codex-rich";
   const prompt = `Create rich HTML, Markdown, JSON, and notebook artifacts for ${source.title}.`;
@@ -92,7 +112,10 @@ export async function writeRichCorpus(source: CanonicalCase, outDir: string): Pr
     },
   };
 
-  const evidence = source.evidence.filter((item) => item.included).map((item) => `- ${item.id}: ${item.title}`).join("\n");
+  const evidence = source.evidence
+    .filter((item) => item.included)
+    .map((item) => `- ${item.id}: ${item.title}`)
+    .join("\n");
   const facts = Object.entries(source.facts ?? {})
     .filter(([key]) => key !== "accessibility_mutation" && key !== "security_mutation")
     .map(([key, fact]) => `- ${fact.label} (${key}): ${fact.value}`)
@@ -106,7 +129,10 @@ export async function writeRichCorpus(source: CanonicalCase, outDir: string): Pr
 <section id="evidence" class="panel"><h2>Evidence Checklist</h2><ul>${evidenceHtml(source)}</ul></section>
 <section id="actions" class="panel"><h2>Annotated Findings</h2>${source.sections.map((section) => `<article class="annotation"><h3>${esc(section.title)}</h3>${section.claims.map((claim) => `<p data-claim-id="${esc(claim.id)}">${esc(claim.text)}</p>`).join("")}</article>`).join("")}</section>
 <section class="panel"><h2>Risks</h2>${source.risks.map((risk) => `<article class="${esc(risk.severity)}" data-risk-severity="${esc(risk.severity)}">${esc(risk.label)}</article>`).join("")}</section>`;
-  await writeText(join(outDir, "artifact.html"), htmlShell(source, source.title ?? "Artifact", "agent-corpus-html-static@0.1.0", common));
+  await writeText(
+    join(outDir, "artifact.html"),
+    htmlShell(source, source.title ?? "Artifact", "agent-corpus-html-static@0.1.0", common),
+  );
 
   const svgLines = source.diagram.edges
     .map((edge, index) => {
@@ -151,23 +177,59 @@ document.querySelector("#copy-export")?.addEventListener("click", () => {
 `,
   );
 
-  const payload = { metadata: JSON.parse(metadata(source, "agent-corpus-json@0.1.0")), case: source, affordances: { diagram: source.diagram.edges, evidence: source.evidence } };
+  const payload = {
+    metadata: JSON.parse(metadata(source, "agent-corpus-json@0.1.0")),
+    case: source,
+    affordances: { diagram: source.diagram.edges, evidence: source.evidence },
+  };
   await writeText(join(outDir, "artifact.json"), `${JSON.stringify(payload, null, 2)}\n`);
-  await writeText(join(outDir, "artifact-renderer.html"), htmlShell(source, "JSON Renderer", "agent-corpus-json-renderer@0.1.0", `${common}<pre>${esc(JSON.stringify(payload, null, 2))}</pre>`));
+  await writeText(
+    join(outDir, "artifact-renderer.html"),
+    htmlShell(
+      source,
+      "JSON Renderer",
+      "agent-corpus-json-renderer@0.1.0",
+      `${common}<pre>${esc(JSON.stringify(payload, null, 2))}</pre>`,
+    ),
+  );
 
   const notebook = {
     cells: [
-      { id: "summary", cell_type: "markdown", metadata: {}, source: [`# ${source.title}\n`, source.summary] },
-      { id: "facts", cell_type: "markdown", metadata: {}, source: [`Status: ${source.status}\nRequired documentation: ${source.required_documentation_count}\n${facts}`] },
+      {
+        id: "summary",
+        cell_type: "markdown",
+        metadata: {},
+        source: [`# ${source.title}\n`, source.summary],
+      },
+      {
+        id: "facts",
+        cell_type: "markdown",
+        metadata: {},
+        source: [
+          `Status: ${source.status}\nRequired documentation: ${source.required_documentation_count}\n${facts}`,
+        ],
+      },
       { id: "evidence", cell_type: "markdown", metadata: {}, source: [evidence] },
       { id: "diagram", cell_type: "markdown", metadata: {}, source: [diagramText(source)] },
     ],
-    metadata: { artifact_eval: JSON.parse(metadata(source, "agent-corpus-notebook@0.1.0")), kernelspec: { display_name: "Python 3", language: "python", name: "python3" }, language_info: { name: "python", version: "3" } },
+    metadata: {
+      artifact_eval: JSON.parse(metadata(source, "agent-corpus-notebook@0.1.0")),
+      kernelspec: { display_name: "Python 3", language: "python", name: "python3" },
+      language_info: { name: "python", version: "3" },
+    },
     nbformat: 4,
     nbformat_minor: 5,
   };
   await writeText(join(outDir, "artifact.ipynb"), `${JSON.stringify(notebook, null, 2)}\n`);
-  await writeText(join(outDir, "artifact-notebook.html"), htmlShell(source, "Notebook Export", "agent-corpus-notebook-html@0.1.0", `${common}<pre>${esc(JSON.stringify(notebook.cells, null, 2))}</pre>`));
+  await writeText(
+    join(outDir, "artifact-notebook.html"),
+    htmlShell(
+      source,
+      "Notebook Export",
+      "agent-corpus-notebook-html@0.1.0",
+      `${common}<pre>${esc(JSON.stringify(notebook.cells, null, 2))}</pre>`,
+    ),
+  );
   await writeJson(join(outDir, "manifest.json"), manifest);
   return manifest;
 }

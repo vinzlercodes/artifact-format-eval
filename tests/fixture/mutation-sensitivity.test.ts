@@ -12,10 +12,16 @@ test("all expected comprehension mutations are observed for every case", async (
   for (const caseId of await listCaseIds()) {
     for (const mutationId of ["omitted-evidence", "visual-diagram-error", "table-value-error"]) {
       const impact = JSON.parse(
-        readFileSync(join(process.cwd(), "results", caseId, "mutations", mutationId, "mutation-impact.json"), "utf8"),
+        readFileSync(
+          join(process.cwd(), "results", caseId, "mutations", mutationId, "mutation-impact.json"),
+          "utf8",
+        ),
       );
       assert.equal(impact.observed, true, `${caseId}/${mutationId} should be observed`);
-      assert.ok(impact.observed_channels.includes("comprehension"), `${caseId}/${mutationId} should affect comprehension`);
+      assert.ok(
+        impact.observed_channels.includes("comprehension"),
+        `${caseId}/${mutationId} should affect comprehension`,
+      );
     }
   }
 });

@@ -11,7 +11,7 @@ import { validateProject } from "./validate.ts";
 
 function argValue(name: string, fallback: string): string {
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] ?? fallback : fallback;
+  return index >= 0 ? (process.argv[index + 1] ?? fallback) : fallback;
 }
 
 function optionalArgValue(name: string): string | undefined {
@@ -39,7 +39,10 @@ async function main(): Promise<void> {
   } else if (command === "report") {
     await buildReport();
   } else if (command === "benchmark") {
-    await runBenchmark({ caseId: requestedCaseId, source: argValue("--source", "all") as BenchmarkSource });
+    await runBenchmark({
+      caseId: requestedCaseId,
+      source: argValue("--source", "all") as BenchmarkSource,
+    });
   } else if (command === "doctor") {
     console.log(formatDoctor(await runDoctor({ ci: process.argv.includes("--ci") })));
   } else if (command === "clean") {

@@ -67,7 +67,10 @@ export function applyMutation(source: CanonicalCase, id: MutationId): CanonicalC
   return next;
 }
 
-export function applyCaseMutation(source: CanonicalCase, mutation: CaseMutationSpec): CanonicalCase {
+export function applyCaseMutation(
+  source: CanonicalCase,
+  mutation: CaseMutationSpec,
+): CanonicalCase {
   const next = applyJsonPatch(source, mutation.patch);
   next.mutation = { id: mutation.id, description: mutation.description };
   return next;

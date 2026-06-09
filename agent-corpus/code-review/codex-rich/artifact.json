@@ -69,17 +69,12 @@
           {
             "id": "claim-001",
             "text": "The checkout form can submit a zero quantity.",
-            "evidence": [
-              "ev-001"
-            ]
+            "evidence": ["ev-001"]
           },
           {
             "id": "claim-002",
             "text": "The fix should reject zero quantity before payment.",
-            "evidence": [
-              "ev-001",
-              "ev-002"
-            ]
+            "evidence": ["ev-001", "ev-002"]
           }
         ]
       },
@@ -90,9 +85,7 @@
           {
             "id": "claim-003",
             "text": "The disabled submit button needs an accessible announcement.",
-            "evidence": [
-              "ev-003"
-            ]
+            "evidence": ["ev-003"]
           }
         ]
       }

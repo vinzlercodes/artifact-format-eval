@@ -5,7 +5,8 @@ import type { CanonicalCase, StableArtifactMetadata, VolatileArtifactMetadata } 
 import { canonicalHash } from "../core/hash.ts";
 import { writeJson, writeText } from "../core/fs.ts";
 
-const CSP = "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'self'";
+const CSP =
+  "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'self'";
 
 interface GeneratedFile {
   path: string;
@@ -18,7 +19,11 @@ interface GenerateOptions {
 }
 
 function escapeHtml(value: string): string {
-  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 function stableMetadata(source: CanonicalCase, generator: string): StableArtifactMetadata {
@@ -41,7 +46,10 @@ function volatileMetadata(command: string): VolatileArtifactMetadata {
 
 function gitSha(): string | null {
   try {
-    return execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    return execFileSync("git", ["rev-parse", "--short", "HEAD"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
   } catch {
     return null;
   }
@@ -54,7 +62,10 @@ function metadataScript(metadata: StableArtifactMetadata): string {
 function caseTable(source: CanonicalCase): string {
   const factRows = Object.entries(source.facts ?? {})
     .filter(([key]) => key !== "accessibility_mutation" && key !== "security_mutation")
-    .map(([key, fact]) => `<tr><th>${escapeHtml(fact.label)}</th><td data-fact="${escapeHtml(key)}">${escapeHtml(String(fact.value))}</td></tr>`)
+    .map(
+      ([key, fact]) =>
+        `<tr><th>${escapeHtml(fact.label)}</th><td data-fact="${escapeHtml(key)}">${escapeHtml(String(fact.value))}</td></tr>`,
+    )
     .join("");
   return `<table><tbody>
     <tr><th>Status</th><td data-field="status">${escapeHtml(source.status)}</td></tr>
@@ -67,19 +78,29 @@ function caseTable(source: CanonicalCase): string {
 function evidenceList(source: CanonicalCase): string {
   return `<h2>Evidence</h2><ul>${source.evidence
     .filter((item) => item.included)
-    .map((item) => `<li data-evidence-id="${escapeHtml(item.id)}">${escapeHtml(item.id)}: ${escapeHtml(item.title)}</li>`)
+    .map(
+      (item) =>
+        `<li data-evidence-id="${escapeHtml(item.id)}">${escapeHtml(item.id)}: ${escapeHtml(item.title)}</li>`,
+    )
     .join("")}</ul>`;
 }
 
 function diagramText(source: CanonicalCase): string {
-  return source.diagram.edges.map((edge, index) => `${index}: ${edge.from} -> ${edge.to}: ${edge.label}`).join("\n");
+  return source.diagram.edges
+    .map((edge, index) => `${index}: ${edge.from} -> ${edge.to}: ${edge.label}`)
+    .join("\n");
 }
 
 function diagramBlock(source: CanonicalCase): string {
   return `<h2>Diagram</h2><pre>${escapeHtml(diagramText(source))}</pre>`;
 }
 
-function htmlShell(title: string, metadata: StableArtifactMetadata, body: string, extraHead = ""): string {
+function htmlShell(
+  title: string,
+  metadata: StableArtifactMetadata,
+  body: string,
+  extraHead = "",
+): string {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -114,13 +135,19 @@ ${body}
 
 function markdown(source: CanonicalCase): GeneratedFile {
   const metadata = stableMetadata(source, "markdown@0.1.0");
-  const evidence = source.evidence.filter((item) => item.included).map((item) => `| ${item.id} | ${item.title} |`).join("\n");
+  const evidence = source.evidence
+    .filter((item) => item.included)
+    .map((item) => `| ${item.id} | ${item.title} |`)
+    .join("\n");
   const facts = Object.entries(source.facts ?? {})
     .filter(([key]) => key !== "accessibility_mutation" && key !== "security_mutation")
     .map(([, fact]) => `| ${fact.label} | ${fact.value} |`)
     .join("\n");
   const sections = source.sections
-    .map((section) => `## ${section.title}\n\n${section.claims.map((claim) => `- ${claim.text}`).join("\n")}`)
+    .map(
+      (section) =>
+        `## ${section.title}\n\n${section.claims.map((claim) => `- ${claim.text}`).join("\n")}`,
+    )
     .join("\n\n");
   const risks = source.risks.map((risk) => `- ${risk.label} (${risk.severity})`).join("\n");
   return {
@@ -139,7 +166,10 @@ function staticHtml(source: CanonicalCase): GeneratedFile {
     ${source.sections.map((section) => `<section class="card"><h2>${escapeHtml(section.title)}</h2><ul>${section.claims.map((claim) => `<li>${escapeHtml(claim.text)}</li>`).join("")}</ul></section>`).join("")}
     <h2>Risks</h2>
     ${source.risks.map((risk) => `<article class="card risk-${risk.severity}">${escapeHtml(risk.label)} (${risk.severity})</article>`).join("")}`;
-  return { path: "artifact.html", content: htmlShell(source.title ?? "Artifact Summary", metadata, body) };
+  return {
+    path: "artifact.html",
+    content: htmlShell(source.title ?? "Artifact Summary", metadata, body),
+  };
 }
 
 function svgHtml(source: CanonicalCase): GeneratedFile {
@@ -150,7 +180,9 @@ function svgHtml(source: CanonicalCase): GeneratedFile {
       return `<g data-diagram-edge="${index}"><text x="20" y="${y}">${escapeHtml(edge.from)}</text><line x1="180" y1="${y - 5}" x2="420" y2="${y - 5}" stroke="#3166a6" marker-end="url(#arrow)"/><text x="205" y="${y - 12}">${escapeHtml(edge.label)}</text><text x="450" y="${y}">${escapeHtml(edge.to)}</text></g>`;
     })
     .join("");
-  const accessibilityMutation = source.facts?.accessibility_mutation?.value === true || source.mutation?.id === "accessibility-error";
+  const accessibilityMutation =
+    source.facts?.accessibility_mutation?.value === true ||
+    source.mutation?.id === "accessibility-error";
   const alt = accessibilityMutation ? "" : "<title>Artifact workflow diagram</title>";
   const body = `<h1>${escapeHtml(source.title ?? "Artifact")} Workflow</h1>${caseTable(source)}${evidenceList(source)}
     <svg role="img" viewBox="0 0 650 280"${accessibilityMutation ? "" : ' aria-label="Artifact workflow"'}>
@@ -158,18 +190,36 @@ function svgHtml(source: CanonicalCase): GeneratedFile {
       <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3166a6"/></marker></defs>
       ${lines}
     </svg>${diagramBlock(source)}`;
-  return { path: "artifact-svg.html", content: htmlShell(`${source.title ?? "Artifact"} Workflow`, metadata, body) };
+  return {
+    path: "artifact-svg.html",
+    content: htmlShell(`${source.title ?? "Artifact"} Workflow`, metadata, body),
+  };
 }
 
 function interactiveHtml(source: CanonicalCase): GeneratedFile[] {
   const metadata = stableMetadata(source, "html-interactive@0.1.0");
-  const unsafe = source.facts?.security_mutation?.value === true || source.mutation?.id === "security-error" ? '<script src="https://example.com/unsafe.js"></script>' : "";
+  const unsafe =
+    source.facts?.security_mutation?.value === true || source.mutation?.id === "security-error"
+      ? '<script src="https://example.com/unsafe.js"></script>'
+      : "";
   const body = `<h1>${escapeHtml(source.title ?? "Artifact")} Interactive Review</h1>
     <nav><a href="#interactive-results">Results</a> <a href="#diagram">Diagram</a> <a href="#export-note">Export</a></nav>
     <div class="toolbar"><button data-filter="all" data-tab="all">All</button><button data-filter="included" data-tab="evidence">Included Evidence</button><button data-filter="risk" data-tab="risk">Risks</button></div>
     <section id="interactive-results" data-sanitizer="DOMPurify">
-      ${source.evidence.filter((item) => item.included).map((item) => `<article class="card evidence" data-included="${item.included}">${escapeHtml(item.id)}: ${escapeHtml(item.title)}</article>`).join("")}
-      ${Object.entries(source.facts ?? {}).filter(([key]) => key !== "accessibility_mutation" && key !== "security_mutation").map(([, fact]) => `<article class="card fact">${escapeHtml(fact.label)}: ${escapeHtml(String(fact.value))}</article>`).join("")}
+      ${source.evidence
+        .filter((item) => item.included)
+        .map(
+          (item) =>
+            `<article class="card evidence" data-included="${item.included}">${escapeHtml(item.id)}: ${escapeHtml(item.title)}</article>`,
+        )
+        .join("")}
+      ${Object.entries(source.facts ?? {})
+        .filter(([key]) => key !== "accessibility_mutation" && key !== "security_mutation")
+        .map(
+          ([, fact]) =>
+            `<article class="card fact">${escapeHtml(fact.label)}: ${escapeHtml(String(fact.value))}</article>`,
+        )
+        .join("")}
       ${source.risks.map((risk) => `<article class="card risk">${escapeHtml(risk.label)}</article>`).join("")}
     </section>
     <section id="diagram">${diagramBlock(source)}</section>
@@ -194,7 +244,10 @@ document.querySelector("#copy-export")?.addEventListener("click", () => {
 });
 `;
   return [
-    { path: "artifact-interactive.html", content: htmlShell(`Interactive ${source.title ?? "Artifact"} Review`, metadata, body) },
+    {
+      path: "artifact-interactive.html",
+      content: htmlShell(`Interactive ${source.title ?? "Artifact"} Review`, metadata, body),
+    },
     { path: "artifact-interactive.js", content: script },
   ];
 }
@@ -213,12 +266,50 @@ function notebook(source: CanonicalCase): GeneratedFile[] {
   const metadata = stableMetadata(source, "notebook@0.1.0");
   const ipynb = {
     cells: [
-      { id: "summary", cell_type: "markdown", metadata: {}, source: [`# ${source.title ?? "Artifact"} Notebook Report\n`, source.summary] },
-      { id: "case-fields", cell_type: "code", execution_count: null, metadata: {}, outputs: [], source: [`case_status = ${JSON.stringify(source.status)}\nrequired_documentation_count = ${source.required_documentation_count}`] },
-      { id: "facts", cell_type: "markdown", metadata: {}, source: [Object.entries(source.facts ?? {}).map(([, fact]) => `${fact.label}: ${fact.value}`).join("\n")] },
-      { id: "evidence", cell_type: "markdown", metadata: {}, source: [source.evidence.filter((item) => item.included).map((item) => `${item.id}: ${item.title}`).join("\n")] },
+      {
+        id: "summary",
+        cell_type: "markdown",
+        metadata: {},
+        source: [`# ${source.title ?? "Artifact"} Notebook Report\n`, source.summary],
+      },
+      {
+        id: "case-fields",
+        cell_type: "code",
+        execution_count: null,
+        metadata: {},
+        outputs: [],
+        source: [
+          `case_status = ${JSON.stringify(source.status)}\nrequired_documentation_count = ${source.required_documentation_count}`,
+        ],
+      },
+      {
+        id: "facts",
+        cell_type: "markdown",
+        metadata: {},
+        source: [
+          Object.entries(source.facts ?? {})
+            .map(([, fact]) => `${fact.label}: ${fact.value}`)
+            .join("\n"),
+        ],
+      },
+      {
+        id: "evidence",
+        cell_type: "markdown",
+        metadata: {},
+        source: [
+          source.evidence
+            .filter((item) => item.included)
+            .map((item) => `${item.id}: ${item.title}`)
+            .join("\n"),
+        ],
+      },
       { id: "diagram", cell_type: "markdown", metadata: {}, source: [diagramText(source)] },
-      { id: "evidence-count", cell_type: "markdown", metadata: {}, source: [`Evidence items: ${source.evidence.filter((item) => item.included).length}`] },
+      {
+        id: "evidence-count",
+        cell_type: "markdown",
+        metadata: {},
+        source: [`Evidence items: ${source.evidence.filter((item) => item.included).length}`],
+      },
     ],
     metadata: {
       artifact_eval: metadata,
@@ -239,7 +330,10 @@ function notebook(source: CanonicalCase): GeneratedFile[] {
   ];
 }
 
-export async function generateArtifacts(source: CanonicalCase, options: GenerateOptions): Promise<void> {
+export async function generateArtifacts(
+  source: CanonicalCase,
+  options: GenerateOptions,
+): Promise<void> {
   const files: GeneratedFile[] = [
     markdown(source),
     staticHtml(source),

@@ -10,7 +10,16 @@
     "label": { "type": "string" },
     "category": {
       "type": "string",
-      "enum": ["validity", "cost", "render", "accessibility", "security", "reviewability", "mutation_sensitivity", "comprehension"]
+      "enum": [
+        "validity",
+        "cost",
+        "render",
+        "accessibility",
+        "security",
+        "reviewability",
+        "mutation_sensitivity",
+        "comprehension"
+      ]
     },
     "direction": { "type": "string", "enum": ["lower_is_better", "higher_is_better", "boolean"] },
     "unit": { "type": "string" },
@@ -18,7 +27,14 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["markdown", "html-static", "html-svg", "html-interactive", "json-renderer", "notebook"]
+        "enum": [
+          "markdown",
+          "html-static",
+          "html-svg",
+          "html-interactive",
+          "json-renderer",
+          "notebook"
+        ]
       }
     },
     "source": { "type": "string" }

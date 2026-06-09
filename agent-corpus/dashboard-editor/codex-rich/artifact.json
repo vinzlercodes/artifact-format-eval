@@ -69,16 +69,12 @@
           {
             "id": "claim-001",
             "text": "The active filter is region = West.",
-            "evidence": [
-              "ev-001"
-            ]
+            "evidence": ["ev-001"]
           },
           {
             "id": "claim-002",
             "text": "The pending change hides churned accounts.",
-            "evidence": [
-              "ev-002"
-            ]
+            "evidence": ["ev-002"]
           }
         ]
       },
@@ -89,9 +85,7 @@
           {
             "id": "claim-003",
             "text": "Review filter impact before publish.",
-            "evidence": [
-              "ev-003"
-            ]
+            "evidence": ["ev-003"]
           }
         ]
       }

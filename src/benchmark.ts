@@ -8,7 +8,10 @@ import { listCaseIds } from "./case/loadCase.ts";
 import { copyCorpusRun } from "./corpus/loadCorpus.ts";
 import type { BenchmarkSource } from "./types.ts";
 
-export async function runBenchmark(options: { caseId?: string; source?: BenchmarkSource }): Promise<void> {
+export async function runBenchmark(options: {
+  caseId?: string;
+  source?: BenchmarkSource;
+}): Promise<void> {
   await validateProject();
   const source = options.source ?? "all";
   const caseIds = options.caseId ? [options.caseId] : await listCaseIds();

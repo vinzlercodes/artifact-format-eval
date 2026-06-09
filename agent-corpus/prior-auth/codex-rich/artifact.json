@@ -65,17 +65,12 @@
           {
             "id": "claim-001",
             "text": "The request is for a lumbar spine MRI.",
-            "evidence": [
-              "ev-001"
-            ]
+            "evidence": ["ev-001"]
           },
           {
             "id": "claim-002",
             "text": "The case is waiting on payer-requested supporting documentation.",
-            "evidence": [
-              "ev-002",
-              "ev-003"
-            ]
+            "evidence": ["ev-002", "ev-003"]
           }
         ]
       },
@@ -86,9 +81,7 @@
           {
             "id": "claim-003",
             "text": "Submit the clinical note and therapy history before the payer deadline.",
-            "evidence": [
-              "ev-002"
-            ]
+            "evidence": ["ev-002"]
           }
         ]
       }

@@ -15,21 +15,18 @@ const baseCase = {
   sections: [],
   diagram: { edges: [{ from: "clinician", to: "payer", label: "submits request" }] },
   risks: [],
-  questions: []
+  questions: [],
 };
 
 test("mutation registry contains the six MVP mutations", () => {
-  assert.deepEqual(
-    MUTATIONS.map((mutation) => mutation.id).sort(),
-    [
-      "accessibility-error",
-      "factual-status-error",
-      "omitted-evidence",
-      "security-error",
-      "table-value-error",
-      "visual-diagram-error",
-    ],
-  );
+  assert.deepEqual(MUTATIONS.map((mutation) => mutation.id).sort(), [
+    "accessibility-error",
+    "factual-status-error",
+    "omitted-evidence",
+    "security-error",
+    "table-value-error",
+    "visual-diagram-error",
+  ]);
 });
 
 test("table-value-error changes the documentation count without mutating the source", () => {

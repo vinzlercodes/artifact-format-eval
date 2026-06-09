@@ -28,6 +28,17 @@ test("runBenchmark produces baseline artifacts, mutation variants, and scoring f
   assert.match(html, /source_hash/);
   assert.doesNotMatch(html, /generated_at/);
 
-  assert.ok(existsSync(join(process.cwd(), "results", "prior-auth", "mutations", "security-error", "mutation.manifest.json")));
+  assert.ok(
+    existsSync(
+      join(
+        process.cwd(),
+        "results",
+        "prior-auth",
+        "mutations",
+        "security-error",
+        "mutation.manifest.json",
+      ),
+    ),
+  );
   assert.ok(existsSync(join(process.cwd(), "site-dist", "index.html")));
 });

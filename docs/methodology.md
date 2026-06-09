@@ -9,9 +9,9 @@ to review as source.
 
 ## Benchmark sources
 
-| Source | Purpose | Output |
-|---|---|---|
-| `templates` | Controlled deterministic baseline from canonical JSON. | `results/<case>/baseline/` |
+| Source         | Purpose                                                                              | Output                                    |
+| -------------- | ------------------------------------------------------------------------------------ | ----------------------------------------- |
+| `templates`    | Controlled deterministic baseline from canonical JSON.                               | `results/<case>/baseline/`                |
 | `agent-corpus` | Checked-in Codex-authored fixtures with richer affordances and provenance manifests. | `results/<case>/agent-corpus/codex-rich/` |
 
 The default `pnpm benchmark` runs both sources. Source-specific runs are available with
@@ -19,14 +19,14 @@ The default `pnpm benchmark` runs both sources. Source-specific runs are availab
 
 ## Comparison layers
 
-| Format | Source artifact | Rendered artifact | Main review surface |
-|---|---|---|---|
-| Markdown | `artifact.md` | Markdown preview HTML | Markdown source + preview |
-| Static HTML | `artifact.html` | Browser-rendered HTML | HTML source + rendered page |
-| HTML+SVG | `artifact-svg.html` | Browser-rendered HTML + SVG | HTML/SVG source + rendered diagram |
-| Interactive HTML | `artifact-interactive.html` | Browser-rendered interactive page | HTML/CSS/JS source + rendered page |
-| JSON+renderer | `artifact.json` plus renderer | Renderer-produced HTML | JSON source + rendered page |
-| Notebook | `artifact.ipynb` | Executed or exported notebook HTML | Notebook JSON + rendered cells |
+| Format           | Source artifact               | Rendered artifact                  | Main review surface                |
+| ---------------- | ----------------------------- | ---------------------------------- | ---------------------------------- |
+| Markdown         | `artifact.md`                 | Markdown preview HTML              | Markdown source + preview          |
+| Static HTML      | `artifact.html`               | Browser-rendered HTML              | HTML source + rendered page        |
+| HTML+SVG         | `artifact-svg.html`           | Browser-rendered HTML + SVG        | HTML/SVG source + rendered diagram |
+| Interactive HTML | `artifact-interactive.html`   | Browser-rendered interactive page  | HTML/CSS/JS source + rendered page |
+| JSON+renderer    | `artifact.json` plus renderer | Renderer-produced HTML             | JSON source + rendered page        |
+| Notebook         | `artifact.ipynb`              | Executed or exported notebook HTML | Notebook JSON + rendered cells     |
 
 ## Format fairness rules
 

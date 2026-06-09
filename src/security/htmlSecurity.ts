@@ -27,7 +27,10 @@ export function scanHtmlSecurity(html: string, options: ScanOptions): HtmlSecuri
   if (/\son[a-z]+\s*=/i.test(html)) {
     violations.push("inline_event_handler");
   }
-  if (/https?:\/\//i.test(html.replace(/https:\/\/json-schema\.org\/draft\/2020-12\/schema/g, "")) && /<script|<img|<link/i.test(html)) {
+  if (
+    /https?:\/\//i.test(html.replace(/https:\/\/json-schema\.org\/draft\/2020-12\/schema/g, "")) &&
+    /<script|<img|<link/i.test(html)
+  ) {
     violations.push("external_network_reference");
   }
   if (options.requiresSanitizer && !/data-sanitizer=["']DOMPurify["']|DOMPurify/i.test(html)) {
