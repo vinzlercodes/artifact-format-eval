@@ -29,6 +29,12 @@ uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/art
 pnpm doctor --ci
 ```
 
+Install Chromium before running the Playwright gate locally:
+
+```bash
+pnpm exec playwright install chromium
+```
+
 ## Project checks
 
 ```bash
@@ -55,6 +61,12 @@ pnpm test
 ```
 
 Runs TypeScript unit, fixture, and security tests.
+
+```bash
+pnpm test:playwright
+```
+
+Runs the narrow browser-backed runtime gate for the prior-auth fixture.
 
 ```bash
 uv run pytest
