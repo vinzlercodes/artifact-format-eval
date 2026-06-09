@@ -6,7 +6,14 @@ import { JSDOM } from "jsdom";
 import { loadBenchmarkCase } from "../case/loadCase.ts";
 import { writeJson } from "../core/fs.ts";
 import { scanHtmlSecurity } from "../security/htmlSecurity.ts";
-import type { BenchmarkSource, CaseMutationSpec, ComprehensionQuestion, FormatId, MetricCategory, MetricScores } from "../types.ts";
+import type {
+  BenchmarkSource,
+  CaseMutationSpec,
+  ComprehensionQuestion,
+  FormatId,
+  MetricCategory,
+  MetricScores,
+} from "../types.ts";
 import { scoreProfiles } from "./metrics.ts";
 
 const FORMAT_FILES: Record<FormatId, string> = {
@@ -36,30 +43,36 @@ interface ReaderResult {
   case_id: string;
   run_id: string;
   method: "deterministic-local-reader";
-  formats: Record<FormatId, {
-    accuracy: number;
-    answer_accuracy: number;
-    findability: number;
-    visual_correctness: number;
-    interaction_success: number;
-    questions: Array<ComprehensionQuestion & { matched: boolean; matched_value: string | null }>;
-  }>;
+  formats: Record<
+    FormatId,
+    {
+      accuracy: number;
+      answer_accuracy: number;
+      findability: number;
+      visual_correctness: number;
+      interaction_success: number;
+      questions: Array<ComprehensionQuestion & { matched: boolean; matched_value: string | null }>;
+    }
+  >;
 }
 
 interface RuntimeResult {
   case_id: string;
   run_id: string;
-  formats: Record<FormatId, {
-    page_loads: boolean;
-    key_sections_visible: boolean;
-    console_errors: string[];
-    external_requests: string[];
-    axe_serious_or_critical: number;
-    svg_has_accessible_name: boolean | null;
-    interaction_smoke_passed: boolean | null;
-    security_violations: string[];
-    engine: "playwright" | "jsdom-fallback";
-  }>;
+  formats: Record<
+    FormatId,
+    {
+      page_loads: boolean;
+      key_sections_visible: boolean;
+      console_errors: string[];
+      external_requests: string[];
+      axe_serious_or_critical: number;
+      svg_has_accessible_name: boolean | null;
+      interaction_smoke_passed: boolean | null;
+      security_violations: string[];
+      engine: "playwright" | "jsdom-fallback";
+    }
+  >;
 }
 
 function lineCount(value: string): number {
@@ -71,24 +84,42 @@ function tokenEstimate(value: string): number {
 }
 
 function metadataPresent(value: string): boolean {
-  return /source_hash|source_hash:/.test(value) && /generator|generator:/.test(value) && /schema_version|schema_version:/.test(value);
+  return (
+    /source_hash|source_hash:/.test(value) &&
+    /generator|generator:/.test(value) &&
+    /schema_version|schema_version:/.test(value)
+  );
 }
 
 function notebookValid(path: string): boolean {
   if (!existsSync(path)) return false;
-  const notebook = JSON.parse(readFileSync(path, "utf8")) as { nbformat?: number; cells?: unknown[]; metadata?: Record<string, unknown> };
-  return notebook.nbformat === 4 && Array.isArray(notebook.cells) && Boolean(notebook.metadata?.artifact_eval);
+  const notebook = JSON.parse(readFileSync(path, "utf8")) as {
+    nbformat?: number;
+    cells?: unknown[];
+    metadata?: Record<string, unknown>;
+  };
+  return (
+    notebook.nbformat === 4 &&
+    Array.isArray(notebook.cells) &&
+    Boolean(notebook.metadata?.artifact_eval)
+  );
 }
 
 function normalize(value: string): string {
   return value.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-function containsAnswer(text: string, question: ComprehensionQuestion): { matched: boolean; matched_value: string | null } {
+function containsAnswer(
+  text: string,
+  question: ComprehensionQuestion,
+): { matched: boolean; matched_value: string | null } {
   const haystack = normalize(text);
   if (question.answer_kind === "required_count") {
     const expected = normalize(question.expected);
-    const matched = new RegExp(`required documentation[^0-9a-z]{0,40}${expected}(?![0-9])`, "i").test(text);
+    const matched = new RegExp(
+      `required documentation[^0-9a-z]{0,40}${expected}(?![0-9])`,
+      "i",
+    ).test(text);
     return { matched, matched_value: matched ? question.expected : null };
   }
   if (question.answer_kind === "diagram_edge") {
@@ -107,11 +138,20 @@ function containsAnswer(text: string, question: ComprehensionQuestion): { matche
   return { matched: false, matched_value: null };
 }
 
-function hasStructuredLandmark(text: string, html: string, question: ComprehensionQuestion): boolean {
+function hasStructuredLandmark(
+  text: string,
+  html: string,
+  question: ComprehensionQuestion,
+): boolean {
   if (question.answer_kind === "status") return /data-field="status"|Status/i.test(html + text);
-  if (question.answer_kind === "required_count") return /data-field="required_documentation_count"|Required documentation/i.test(html + text);
-  if (question.answer_kind === "evidence") return question.target_evidence_id ? (html + text).includes(question.target_evidence_id) : /Evidence/i.test(html + text);
-  if (question.answer_kind === "diagram_edge") return /data-diagram-edge|->|Flow|Diagram/i.test(html + text);
+  if (question.answer_kind === "required_count")
+    return /data-field="required_documentation_count"|Required documentation/i.test(html + text);
+  if (question.answer_kind === "evidence")
+    return question.target_evidence_id
+      ? (html + text).includes(question.target_evidence_id)
+      : /Evidence/i.test(html + text);
+  if (question.answer_kind === "diagram_edge")
+    return /data-diagram-edge|->|Flow|Diagram/i.test(html + text);
   if (question.answer_kind === "risk") return /data-risk-severity|Risks/i.test(html + text);
   return true;
 }
@@ -130,30 +170,53 @@ function readableText(dir: string, format: FormatId): string {
     return `${readFileSync(primary, "utf8")}\n${htmlText(join(dir, "artifact-renderer.html"))}`;
   }
   if (format === "notebook") {
-    const notebook = JSON.parse(readFileSync(primary, "utf8")) as { cells?: Array<{ source?: string | string[] }> };
+    const notebook = JSON.parse(readFileSync(primary, "utf8")) as {
+      cells?: Array<{ source?: string | string[] }>;
+    };
     return [
-      ...(notebook.cells ?? []).flatMap((cell) => Array.isArray(cell.source) ? cell.source : [cell.source ?? ""]),
+      ...(notebook.cells ?? []).flatMap((cell) =>
+        Array.isArray(cell.source) ? cell.source : [cell.source ?? ""],
+      ),
       htmlText(join(dir, "artifact-notebook.html")),
     ].join("\n");
   }
   return htmlText(primary);
 }
 
-function evaluateReader(dir: string, caseId: string, runId: string, questions: ComprehensionQuestion[]): ReaderResult {
+function evaluateReader(
+  dir: string,
+  caseId: string,
+  runId: string,
+  questions: ComprehensionQuestion[],
+): ReaderResult {
   const formats = {} as ReaderResult["formats"];
   for (const format of Object.keys(FORMAT_FILES) as FormatId[]) {
     const text = readableText(dir, format);
-    const renderFile = RENDER_FILES[format] ? join(dir, RENDER_FILES[format]) : join(dir, FORMAT_FILES[format]);
+    const renderFile = RENDER_FILES[format]
+      ? join(dir, RENDER_FILES[format])
+      : join(dir, FORMAT_FILES[format]);
     const html = existsSync(renderFile) ? readFileSync(renderFile, "utf8") : text;
-    const answers = questions.map((question) => ({ ...question, ...containsAnswer(text, question) }));
-    const answerAccuracy = answers.filter((answer) => answer.matched).length / Math.max(answers.length, 1);
-    const findabilityChecks = questions.filter((question) => question.answer_kind || question.canonical_path || question.target_evidence_id);
-    const visualChecks = questions.filter((question) => question.requires_visual || question.answer_kind === "diagram_edge");
+    const answers = questions.map((question) => ({
+      ...question,
+      ...containsAnswer(text, question),
+    }));
+    const answerAccuracy =
+      answers.filter((answer) => answer.matched).length / Math.max(answers.length, 1);
+    const findabilityChecks = questions.filter(
+      (question) => question.answer_kind || question.canonical_path || question.target_evidence_id,
+    );
+    const visualChecks = questions.filter(
+      (question) => question.requires_visual || question.answer_kind === "diagram_edge",
+    );
     const interactionChecks = questions.filter((question) => question.requires_interaction);
     const findability =
-      findabilityChecks.filter((question) => hasStructuredLandmark(text, html, question)).length / Math.max(findabilityChecks.length, 1);
+      findabilityChecks.filter((question) => hasStructuredLandmark(text, html, question)).length /
+      Math.max(findabilityChecks.length, 1);
     const visualCorrectness =
-      visualChecks.filter((question) => containsAnswer(text, question).matched && hasStructuredLandmark(text, html, question)).length / Math.max(visualChecks.length, 1);
+      visualChecks.filter(
+        (question) =>
+          containsAnswer(text, question).matched && hasStructuredLandmark(text, html, question),
+      ).length / Math.max(visualChecks.length, 1);
     const interactionSuccess =
       interactionChecks.length === 0
         ? 1
@@ -195,17 +258,30 @@ function fallbackRuntime(dir: string, caseId: string, runId: string): RuntimeRes
     const html = existsSync(path) ? readFileSync(path, "utf8") : "";
     const dom = new JSDOM(html);
     const document = dom.window.document;
-    const security = scanHtmlSecurity(html, { requiresSanitizer: format === "html-interactive" || format === "json-renderer" });
+    const security = scanHtmlSecurity(html, {
+      requiresSanitizer: format === "html-interactive" || format === "json-renderer",
+    });
     const svg = document.querySelector("svg");
-    const svgHasName = svg ? Boolean(svg.querySelector("title")?.textContent?.trim() || svg.getAttribute("aria-label")?.trim()) : null;
+    const svgHasName = svg
+      ? Boolean(
+          svg.querySelector("title")?.textContent?.trim() || svg.getAttribute("aria-label")?.trim(),
+        )
+      : null;
     formats[format] = {
       page_loads: Boolean(document.querySelector("main") || document.body),
       key_sections_visible: Boolean(document.querySelector("h1")),
       console_errors: [],
-      external_requests: security.violations.includes("external_network_reference") || security.violations.includes("remote_script") ? ["external reference detected"] : [],
+      external_requests:
+        security.violations.includes("external_network_reference") ||
+        security.violations.includes("remote_script")
+          ? ["external reference detected"]
+          : [],
       axe_serious_or_critical: svgHasName === false ? 1 : 0,
       svg_has_accessible_name: svgHasName,
-      interaction_smoke_passed: format === "html-interactive" ? document.querySelectorAll("button[data-filter]").length >= 3 : null,
+      interaction_smoke_passed:
+        format === "html-interactive"
+          ? document.querySelectorAll("button[data-filter]").length >= 3
+          : null,
       security_violations: security.violations,
       engine: "jsdom-fallback",
     };
@@ -220,18 +296,30 @@ async function evaluateRuntime(dir: string, caseId: string, runId: string): Prom
   let browser:
     | {
         newPage(): Promise<{
-          on(event: "console", handler: (message: { type(): string; text(): string }) => void): void;
+          on(
+            event: "console",
+            handler: (message: { type(): string; text(): string }) => void,
+          ): void;
           on(event: "request", handler: (request: { url(): string }) => void): void;
-          goto(url: string, options?: { waitUntil?: "domcontentloaded"; timeout?: number }): Promise<void>;
+          goto(
+            url: string,
+            options?: { waitUntil?: "domcontentloaded"; timeout?: number },
+          ): Promise<void>;
           locator(selector: string): { count(): Promise<number>; click(): Promise<void> };
           evaluate<T>(fn: () => T): Promise<T>;
           close(): Promise<void>;
         }>;
         newContext(): Promise<{
           newPage(): Promise<{
-            on(event: "console", handler: (message: { type(): string; text(): string }) => void): void;
+            on(
+              event: "console",
+              handler: (message: { type(): string; text(): string }) => void,
+            ): void;
             on(event: "request", handler: (request: { url(): string }) => void): void;
-            goto(url: string, options?: { waitUntil?: "domcontentloaded"; timeout?: number }): Promise<void>;
+            goto(
+              url: string,
+              options?: { waitUntil?: "domcontentloaded"; timeout?: number },
+            ): Promise<void>;
             locator(selector: string): { count(): Promise<number>; click(): Promise<void> };
             evaluate<T>(fn: () => T): Promise<T>;
             close(): Promise<void>;
@@ -242,9 +330,15 @@ async function evaluateRuntime(dir: string, caseId: string, runId: string): Prom
       }
     | undefined;
   try {
-    const playwright = await import("@playwright/test") as unknown as { chromium: { launch(options: { headless: boolean }): Promise<unknown> } };
-    const axeModule = await import("@axe-core/playwright") as unknown as { default: new (options: { page: unknown }) => { analyze(): Promise<{ violations: Array<{ impact?: string }> }> } };
-    browser = await playwright.chromium.launch({ headless: true }) as NonNullable<typeof browser>;
+    const playwright = (await import("@playwright/test")) as unknown as {
+      chromium: { launch(options: { headless: boolean }): Promise<unknown> };
+    };
+    const axeModule = (await import("@axe-core/playwright")) as unknown as {
+      default: new (options: { page: unknown }) => {
+        analyze(): Promise<{ violations: Array<{ impact?: string }> }>;
+      };
+    };
+    browser = (await playwright.chromium.launch({ headless: true })) as NonNullable<typeof browser>;
     const context = await browser.newContext();
     const formats = {} as RuntimeResult["formats"];
     try {
@@ -266,7 +360,9 @@ async function evaluateRuntime(dir: string, caseId: string, runId: string): Prom
         }
         const htmlPath = join(dir, renderFile);
         const html = existsSync(htmlPath) ? readFileSync(htmlPath, "utf8") : "";
-        const security = scanHtmlSecurity(html, { requiresSanitizer: format === "html-interactive" || format === "json-renderer" });
+        const security = scanHtmlSecurity(html, {
+          requiresSanitizer: format === "html-interactive" || format === "json-renderer",
+        });
         const page = await context.newPage();
         const consoleErrors: string[] = [];
         const externalRequests: string[] = [];
@@ -277,24 +373,41 @@ async function evaluateRuntime(dir: string, caseId: string, runId: string): Prom
           if (/^https?:\/\//i.test(request.url())) externalRequests.push(request.url());
         });
         try {
-          await page.goto(pathToFileURL(htmlPath).href, { waitUntil: "domcontentloaded", timeout: 2000 });
+          await page.goto(pathToFileURL(htmlPath).href, {
+            waitUntil: "domcontentloaded",
+            timeout: 2000,
+          });
           const keySectionsVisible = (await page.locator("h1").count()) > 0;
-          const interaction = format === "html-interactive" ? (await page.locator("button[data-filter]").count()) >= 3 : null;
+          const interaction =
+            format === "html-interactive"
+              ? (await page.locator("button[data-filter]").count()) >= 3
+              : null;
           if (format === "html-interactive" && interaction) {
             await page.locator('button[data-filter="included"]').click();
           }
           const svgHasName = await page.evaluate(() => {
             const svg = document.querySelector("svg");
             if (!svg) return null;
-            return Boolean(svg.querySelector("title")?.textContent?.trim() || svg.getAttribute("aria-label")?.trim());
+            return Boolean(
+              svg.querySelector("title")?.textContent?.trim() ||
+              svg.getAttribute("aria-label")?.trim(),
+            );
           });
           const axe = await new axeModule.default({ page }).analyze();
           formats[format] = {
             page_loads: true,
             key_sections_visible: keySectionsVisible,
             console_errors: consoleErrors,
-            external_requests: [...new Set([...externalRequests, ...(security.violations.includes("remote_script") ? ["remote script"] : [])])],
-            axe_serious_or_critical: axe.violations.filter((violation) => violation.impact === "serious" || violation.impact === "critical").length + (svgHasName === false ? 1 : 0),
+            external_requests: [
+              ...new Set([
+                ...externalRequests,
+                ...(security.violations.includes("remote_script") ? ["remote script"] : []),
+              ]),
+            ],
+            axe_serious_or_critical:
+              axe.violations.filter(
+                (violation) => violation.impact === "serious" || violation.impact === "critical",
+              ).length + (svgHasName === false ? 1 : 0),
             svg_has_accessible_name: svgHasName,
             interaction_smoke_passed: interaction,
             security_violations: security.violations,
@@ -342,24 +455,43 @@ function normalizeScores(
   for (const format of Object.keys(FORMAT_FILES) as FormatId[]) {
     const runtimeFormat = runtime.formats[format];
     const securityPass = runtimeFormat.security_violations.length === 0;
-    const accessibility = runtimeFormat.svg_has_accessible_name === false ? 0.25 : runtimeFormat.axe_serious_or_critical > 0 ? 0.5 : 1;
-    const mutationSensitivity = mutationImpact ? (mutationImpact.by_format[format]?.observed ? 1 : 0) : 0.75;
+    const accessibility =
+      runtimeFormat.svg_has_accessible_name === false
+        ? 0.25
+        : runtimeFormat.axe_serious_or_critical > 0
+          ? 0.5
+          : 1;
+    const mutationSensitivity = mutationImpact
+      ? mutationImpact.by_format[format]?.observed
+        ? 1
+        : 0
+      : 0.75;
     const readerFormat = reader.formats[format];
-    const comprehension = (
+    const comprehension =
       readerFormat.answer_accuracy * 0.55 +
       readerFormat.findability * 0.2 +
       readerFormat.visual_correctness * 0.15 +
-      readerFormat.interaction_success * 0.1
-    );
+      readerFormat.interaction_success * 0.1;
     const affordanceBonus =
-      format === "html-interactive" ? 0.12 :
-      format === "html-svg" ? 0.09 :
-      format === "html-static" ? 0.04 :
-      0;
+      format === "html-interactive"
+        ? 0.12
+        : format === "html-svg"
+          ? 0.09
+          : format === "html-static"
+            ? 0.04
+            : 0;
     result[format] = {
-      validity: raw[format].metadata_present && (format !== "notebook" || raw[format].notebook_valid) ? 1 : 0,
+      validity:
+        raw[format].metadata_present && (format !== "notebook" || raw[format].notebook_valid)
+          ? 1
+          : 0,
       cost: Math.max(0, 1 - Number(raw[format].estimated_tokens) / (maxTokens * 1.25)),
-      render: runtimeFormat.page_loads && runtimeFormat.key_sections_visible && runtimeFormat.interaction_smoke_passed !== false ? 1 : 0,
+      render:
+        runtimeFormat.page_loads &&
+        runtimeFormat.key_sections_visible &&
+        runtimeFormat.interaction_smoke_passed !== false
+          ? 1
+          : 0,
       accessibility,
       security: securityPass ? 1 : 0,
       reviewability: Math.min(1, Math.max(0, 1 - Number(raw[format].loc) / 220) + affordanceBonus),
@@ -373,7 +505,7 @@ function normalizeScores(
 function runIdForDir(dir: string): string {
   const parts = dir.split(/[/\\]/);
   const mutationIndex = parts.lastIndexOf("mutations");
-  return mutationIndex >= 0 ? parts[mutationIndex + 1] ?? "mutation" : "baseline";
+  return mutationIndex >= 0 ? (parts[mutationIndex + 1] ?? "mutation") : "baseline";
 }
 
 interface MutationImpact {
@@ -381,17 +513,22 @@ interface MutationImpact {
   affected_questions: string[];
   observed: boolean;
   observed_channels: string[];
-  by_format: Record<FormatId, {
-    baseline_accuracy: number;
-    mutated_accuracy: number;
-    affected_accuracy_delta: number;
-    observed: boolean;
-  }>;
+  by_format: Record<
+    FormatId,
+    {
+      baseline_accuracy: number;
+      mutated_accuracy: number;
+      affected_accuracy_delta: number;
+      observed: boolean;
+    }
+  >;
 }
 
 function affectedAccuracy(reader: ReaderResult, format: FormatId, affected: string[]): number {
   if (affected.length === 0) return reader.formats[format].accuracy;
-  const questions = reader.formats[format].questions.filter((question) => affected.includes(question.id));
+  const questions = reader.formats[format].questions.filter((question) =>
+    affected.includes(question.id),
+  );
   return questions.filter((question) => question.matched).length / Math.max(questions.length, 1);
 }
 
@@ -407,13 +544,16 @@ function buildMutationImpact(
   for (const format of Object.keys(FORMAT_FILES) as FormatId[]) {
     const baselineAccuracy = affectedAccuracy(baselineReader, format, mutation.affected_questions);
     const mutatedAccuracy = affectedAccuracy(mutatedReader, format, mutation.affected_questions);
-    const comprehensionDrop = mutation.affected_questions.length > 0 && mutatedAccuracy < baselineAccuracy;
+    const comprehensionDrop =
+      mutation.affected_questions.length > 0 && mutatedAccuracy < baselineAccuracy;
     const accessibilityDrop =
       mutation.expected_degradation.includes("accessibility") &&
-      mutatedRuntime.formats[format].axe_serious_or_critical > baselineRuntime.formats[format].axe_serious_or_critical;
+      mutatedRuntime.formats[format].axe_serious_or_critical >
+        baselineRuntime.formats[format].axe_serious_or_critical;
     const securityDrop =
       mutation.expected_degradation.includes("security") &&
-      mutatedRuntime.formats[format].security_violations.length > baselineRuntime.formats[format].security_violations.length;
+      mutatedRuntime.formats[format].security_violations.length >
+        baselineRuntime.formats[format].security_violations.length;
     if (comprehensionDrop) channels.add("comprehension");
     if (accessibilityDrop) channels.add("accessibility");
     if (securityDrop) channels.add("security");
@@ -456,13 +596,22 @@ export async function evaluateDirectory(
   if (options?.baselineDir && options.mutation) {
     const baselineReader = evaluateReader(options.baselineDir, caseId, "baseline", questions);
     const baselineRuntime = await evaluateRuntime(options.baselineDir, caseId, "baseline");
-    mutationImpact = buildMutationImpact(options.mutation, baselineReader, reader, baselineRuntime, runtime);
+    mutationImpact = buildMutationImpact(
+      options.mutation,
+      baselineReader,
+      reader,
+      baselineRuntime,
+      runtime,
+    );
     await writeJson(join(dir, "mutation-impact.json"), mutationImpact);
   }
 
   const normalized = normalizeScores(raw, reader, runtime, mutationImpact);
   const byProfile = Object.fromEntries(
-    (Object.keys(FORMAT_FILES) as FormatId[]).map((format) => [format, scoreProfiles(normalized[format])]),
+    (Object.keys(FORMAT_FILES) as FormatId[]).map((format) => [
+      format,
+      scoreProfiles(normalized[format]),
+    ]),
   ) as EvaluationResult["byProfile"];
   const scores = {
     case_id: caseId,
@@ -500,7 +649,11 @@ export async function evaluateDirectory(
     ),
   };
 
-  await writeJson(join(dir, "metrics.raw.by-format.json"), { case_id: caseId, run_id: runId, formats: raw });
+  await writeJson(join(dir, "metrics.raw.by-format.json"), {
+    case_id: caseId,
+    run_id: runId,
+    formats: raw,
+  });
   await writeJson(join(dir, "comprehension.by-format.json"), reader);
   await writeJson(join(dir, "runtime.by-format.json"), runtime);
   await writeJson(join(dir, "scores.by-format.json"), scores);
@@ -522,7 +675,10 @@ export async function runReaderEvaluation(caseId: string): Promise<void> {
   await evaluateDirectory(baseline, { caseId, questions: benchmarkCase.questions });
 }
 
-export async function evaluateCase(caseId: string, source: Exclude<BenchmarkSource, "all"> = "templates"): Promise<void> {
+export async function evaluateCase(
+  caseId: string,
+  source: Exclude<BenchmarkSource, "all"> = "templates",
+): Promise<void> {
   const benchmarkCase = await loadBenchmarkCase(caseId);
   const root = join(process.cwd(), "results", caseId);
   const baselineDir = join(root, "baseline");

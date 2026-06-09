@@ -1,10 +1,40 @@
 {
   "case_id": "prior-auth-001",
   "questions": [
-    { "id": "q1", "prompt": "What is the current case status?", "expected": "additional_info_requested", "answer_kind": "status", "canonical_path": "/status" },
-    { "id": "q2", "prompt": "Which evidence item documents physical therapy?", "expected": "ev-002", "answer_kind": "evidence", "target_evidence_id": "ev-002" },
-    { "id": "q3", "prompt": "How many documentation items are required?", "expected": "3", "answer_kind": "required_count", "canonical_path": "/required_documentation_count" },
-    { "id": "q4", "prompt": "What is the first diagram edge?", "expected": "clinician -> payer", "answer_kind": "diagram_edge", "target_diagram_edge": 0, "requires_visual": true },
-    { "id": "q5", "prompt": "Which risk has high severity?", "expected": "Documentation mismatch between policy and clinical note", "answer_kind": "risk" }
+    {
+      "id": "q1",
+      "prompt": "What is the current case status?",
+      "expected": "additional_info_requested",
+      "answer_kind": "status",
+      "canonical_path": "/status"
+    },
+    {
+      "id": "q2",
+      "prompt": "Which evidence item documents physical therapy?",
+      "expected": "ev-002",
+      "answer_kind": "evidence",
+      "target_evidence_id": "ev-002"
+    },
+    {
+      "id": "q3",
+      "prompt": "How many documentation items are required?",
+      "expected": "3",
+      "answer_kind": "required_count",
+      "canonical_path": "/required_documentation_count"
+    },
+    {
+      "id": "q4",
+      "prompt": "What is the first diagram edge?",
+      "expected": "clinician -> payer",
+      "answer_kind": "diagram_edge",
+      "target_diagram_edge": 0,
+      "requires_visual": true
+    },
+    {
+      "id": "q5",
+      "prompt": "Which risk has high severity?",
+      "expected": "Documentation mismatch between policy and clinical note",
+      "answer_kind": "risk"
+    }
   ]
 }

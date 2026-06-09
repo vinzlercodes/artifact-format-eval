@@ -45,7 +45,10 @@ test("reader evaluation is deterministic and evaluate:agent compatible", async (
   await runReaderEvaluation("prior-auth");
 
   const comprehension = JSON.parse(
-    readFileSync(join(process.cwd(), "results", "prior-auth", "baseline", "comprehension.by-format.json"), "utf8"),
+    readFileSync(
+      join(process.cwd(), "results", "prior-auth", "baseline", "comprehension.by-format.json"),
+      "utf8",
+    ),
   );
   assert.equal(comprehension.case_id, "prior-auth");
   assert.equal(comprehension.method, "deterministic-local-reader");
@@ -58,7 +61,14 @@ test("mutation impact is based on observed degradation, not manifest presence", 
 
   const impact = JSON.parse(
     readFileSync(
-      join(process.cwd(), "results", "prior-auth", "mutations", "factual-status-error", "mutation-impact.json"),
+      join(
+        process.cwd(),
+        "results",
+        "prior-auth",
+        "mutations",
+        "factual-status-error",
+        "mutation-impact.json",
+      ),
       "utf8",
     ),
   );
@@ -74,7 +84,14 @@ test("accessibility mutation lowers html-svg accessibility", async () => {
 
   const scores = JSON.parse(
     readFileSync(
-      join(process.cwd(), "results", "prior-auth", "mutations", "accessibility-error", "scores.by-format.json"),
+      join(
+        process.cwd(),
+        "results",
+        "prior-auth",
+        "mutations",
+        "accessibility-error",
+        "scores.by-format.json",
+      ),
       "utf8",
     ),
   );

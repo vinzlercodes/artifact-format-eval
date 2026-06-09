@@ -11,13 +11,19 @@ export async function validateProject(): Promise<void> {
     compile(schema: unknown): CompiledValidator;
   };
   const ajv = new Ajv2020({ allErrors: true });
-  const canonicalSchema = JSON.parse(readFileSync(join(process.cwd(), "schemas", "canonical-case.schema.json"), "utf8"));
-  const metricSchema = JSON.parse(readFileSync(join(process.cwd(), "schemas", "metric-manifest.schema.json"), "utf8"));
+  const canonicalSchema = JSON.parse(
+    readFileSync(join(process.cwd(), "schemas", "canonical-case.schema.json"), "utf8"),
+  );
+  const metricSchema = JSON.parse(
+    readFileSync(join(process.cwd(), "schemas", "metric-manifest.schema.json"), "utf8"),
+  );
   const validateCanonical = ajv.compile(canonicalSchema);
   for (const caseId of await listCaseIds()) {
     const canonical = await loadCanonicalCase(caseId);
     if (!validateCanonical(canonical)) {
-      throw new Error(`canonical case invalid (${caseId}): ${JSON.stringify(validateCanonical.errors)}`);
+      throw new Error(
+        `canonical case invalid (${caseId}): ${JSON.stringify(validateCanonical.errors)}`,
+      );
     }
   }
 

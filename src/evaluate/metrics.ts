@@ -210,9 +210,13 @@ export const PROFILE_WEIGHTS: Record<ProfileId, Record<MetricCategory, number>> 
   },
 };
 
-export function scoreProfiles(categoryScores: Record<MetricCategory, number>): Record<ProfileId, number> {
+export function scoreProfiles(
+  categoryScores: Record<MetricCategory, number>,
+): Record<ProfileId, number> {
   const result = {} as Record<ProfileId, number>;
-  for (const [profile, weights] of Object.entries(PROFILE_WEIGHTS) as Array<[ProfileId, Record<MetricCategory, number>]>) {
+  for (const [profile, weights] of Object.entries(PROFILE_WEIGHTS) as Array<
+    [ProfileId, Record<MetricCategory, number>]
+  >) {
     result[profile] =
       Object.entries(weights).reduce(
         (sum, [category, weight]) => sum + categoryScores[category as MetricCategory] * weight,

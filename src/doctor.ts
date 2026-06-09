@@ -36,9 +36,13 @@ export async function runDoctor(_options: { ci?: boolean } = {}): Promise<Doctor
     await version("playwright", "pnpm", ["exec", "playwright", "--version"]),
     {
       id: "coverage-fixtures",
-      ok: ["prior-auth", "code-review", "incident-report", "research-explainer", "dashboard-editor"].every((caseId) =>
-        existsSync(join(process.cwd(), "cases", caseId, "canonical.json")),
-      ),
+      ok: [
+        "prior-auth",
+        "code-review",
+        "incident-report",
+        "research-explainer",
+        "dashboard-editor",
+      ].every((caseId) => existsSync(join(process.cwd(), "cases", caseId, "canonical.json"))),
       detail: caseIds.join(", "),
     },
     { id: "api-keys", ok: true, detail: "no API keys required for normal benchmark" },
@@ -47,5 +51,7 @@ export async function runDoctor(_options: { ci?: boolean } = {}): Promise<Doctor
 }
 
 export function formatDoctor(result: DoctorResult): string {
-  return result.checks.map((check) => `${check.ok ? "PASS" : "FAIL"} ${check.id}: ${check.detail}`).join("\n");
+  return result.checks
+    .map((check) => `${check.ok ? "PASS" : "FAIL"} ${check.id}: ${check.detail}`)
+    .join("\n");
 }

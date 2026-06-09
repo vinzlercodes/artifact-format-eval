@@ -48,11 +48,7 @@
         "properties": {
           "label": { "type": "string" },
           "value": {
-            "anyOf": [
-              { "type": "string" },
-              { "type": "number" },
-              { "type": "boolean" }
-            ]
+            "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
           }
         }
       }

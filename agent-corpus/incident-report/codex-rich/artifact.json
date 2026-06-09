@@ -69,16 +69,12 @@
           {
             "id": "claim-001",
             "text": "The incident began at 09:42 UTC.",
-            "evidence": [
-              "ev-001"
-            ]
+            "evidence": ["ev-001"]
           },
           {
             "id": "claim-002",
             "text": "The deploy preceded the latency alert.",
-            "evidence": [
-              "ev-002"
-            ]
+            "evidence": ["ev-002"]
           }
         ]
       },
@@ -89,9 +85,7 @@
           {
             "id": "claim-003",
             "text": "The root cause was an exhausted connection pool.",
-            "evidence": [
-              "ev-003"
-            ]
+            "evidence": ["ev-003"]
           }
         ]
       }

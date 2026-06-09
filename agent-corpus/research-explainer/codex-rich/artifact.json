@@ -69,9 +69,7 @@
           {
             "id": "claim-001",
             "text": "Retrieval-augmented generation starts by retrieving relevant passages.",
-            "evidence": [
-              "ev-001"
-            ]
+            "evidence": ["ev-001"]
           }
         ]
       },
@@ -82,9 +80,7 @@
           {
             "id": "claim-002",
             "text": "Citation review checks generated claims against retrieved passages.",
-            "evidence": [
-              "ev-003"
-            ]
+            "evidence": ["ev-003"]
           }
         ]
       }

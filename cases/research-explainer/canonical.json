@@ -12,20 +12,66 @@
     "concept_status": { "label": "Concept status", "value": "ready_for_review" },
     "core_concept": { "label": "Core concept", "value": "retrieval-augmented generation" },
     "first_step": { "label": "First step", "value": "retrieve relevant passages" },
-    "next_action": { "label": "Next action", "value": "verify citations against retrieved passages" },
+    "next_action": {
+      "label": "Next action",
+      "value": "verify citations against retrieved passages"
+    },
     "accessibility_mutation": { "label": "Accessibility mutation active", "value": false },
     "security_mutation": { "label": "Security mutation active", "value": false }
   },
   "evidence": [
     { "id": "ev-001", "title": "Retriever returns candidate passages", "included": true },
-    { "id": "ev-002", "title": "Generator drafts an answer grounded in passages", "included": true },
+    {
+      "id": "ev-002",
+      "title": "Generator drafts an answer grounded in passages",
+      "included": true
+    },
     { "id": "ev-003", "title": "Reviewer verifies citations", "included": true }
   ],
   "sections": [
-    { "id": "concept", "title": "Concept", "claims": [{ "id": "claim-001", "text": "Retrieval-augmented generation starts by retrieving relevant passages.", "evidence": ["ev-001"] }] },
-    { "id": "review", "title": "Review", "claims": [{ "id": "claim-002", "text": "Citation review checks generated claims against retrieved passages.", "evidence": ["ev-003"] }] }
+    {
+      "id": "concept",
+      "title": "Concept",
+      "claims": [
+        {
+          "id": "claim-001",
+          "text": "Retrieval-augmented generation starts by retrieving relevant passages.",
+          "evidence": ["ev-001"]
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Review",
+      "claims": [
+        {
+          "id": "claim-002",
+          "text": "Citation review checks generated claims against retrieved passages.",
+          "evidence": ["ev-003"]
+        }
+      ]
+    }
   ],
-  "diagram": { "edges": [{ "from": "query", "to": "retriever", "label": "asks" }, { "from": "retriever", "to": "generator", "label": "passes context" }, { "from": "generator", "to": "citation_review", "label": "requires verification" }] },
-  "risks": [{ "id": "risk-001", "label": "Generated answer cites an unsupported passage", "severity": "high" }, { "id": "risk-002", "label": "Retriever misses important context", "severity": "medium" }],
-  "questions": ["What concept is explained?", "What is the first step?", "What action is needed next?", "Which evidence item covers citation review?", "Which risk has high severity?"]
+  "diagram": {
+    "edges": [
+      { "from": "query", "to": "retriever", "label": "asks" },
+      { "from": "retriever", "to": "generator", "label": "passes context" },
+      { "from": "generator", "to": "citation_review", "label": "requires verification" }
+    ]
+  },
+  "risks": [
+    {
+      "id": "risk-001",
+      "label": "Generated answer cites an unsupported passage",
+      "severity": "high"
+    },
+    { "id": "risk-002", "label": "Retriever misses important context", "severity": "medium" }
+  ],
+  "questions": [
+    "What concept is explained?",
+    "What is the first step?",
+    "What action is needed next?",
+    "Which evidence item covers citation review?",
+    "Which risk has high severity?"
+  ]
 }

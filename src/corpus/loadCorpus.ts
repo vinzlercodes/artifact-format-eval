@@ -32,7 +32,11 @@ export async function loadCorpusRun(root: string): Promise<CorpusManifest> {
   return manifest;
 }
 
-export async function copyCorpusRun(caseId: string, runId: string, outDir: string): Promise<CorpusManifest> {
+export async function copyCorpusRun(
+  caseId: string,
+  runId: string,
+  outDir: string,
+): Promise<CorpusManifest> {
   const sourceRoot = join(process.cwd(), "agent-corpus", caseId, runId);
   if (!existsSync(sourceRoot)) {
     return writeRichCorpus(await loadCanonicalCase(caseId), outDir);

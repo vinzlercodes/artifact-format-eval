@@ -19,6 +19,7 @@ pnpm verify
 Runs:
 
 ```text
+pnpm format:check
 pnpm validate
 pnpm typecheck
 pnpm test
@@ -41,6 +42,13 @@ pnpm typecheck
 ```
 
 Runs TypeScript typechecking.
+
+```bash
+pnpm format:check
+pnpm format
+```
+
+Checks or rewrites source formatting with Prettier. Generated outputs and lockfiles are ignored.
 
 ```bash
 pnpm test
@@ -154,4 +162,5 @@ coverage/
 It does not remove dependencies or source files.
 
 ## Optional agent evaluation
+
 Live provider-backed agent evaluation is not implemented. Normal verification is API-key-free.

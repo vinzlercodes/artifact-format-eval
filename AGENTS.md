@@ -37,42 +37,49 @@ Normal verification is API-key-free. Copy `.env.example` only when adding option
 ## Workflow Orchestration
 
 ### Plan Mode Default
+
 - Enter plan mode for any non-trivial task, defined as 3+ steps, architectural decisions, or meaningful uncertainty.
 - Write detailed specs upfront to reduce ambiguity.
 - Use plan mode for verification steps, not just implementation.
 - If something goes sideways, stop and re-plan immediately.
 
 ### Subagent Strategy
+
 - Use subagents liberally to keep the main context window clean.
 - Offload research, exploration, and parallel analysis to focused subagents.
 - Use one task per subagent.
 - For complex problems, use additional subagents rather than overloading one thread.
 
 ### Self-Improvement Loop
+
 - After any correction from the user, update `tasks/lessons.md` with the pattern.
 - Write rules that prevent the same mistake from recurring.
 - Review relevant lessons at session start.
 - Ruthlessly iterate on these lessons until the mistake rate drops.
 
 ### Verification Before Done
+
 - Never mark a task complete without proving it works.
 - Run tests, check logs, and demonstrate correctness where applicable.
 - Diff behavior between main and the current changes when relevant.
 - Ask: “Would a staff engineer approve this?”
 
 ### Demand Elegance, Balanced
+
 - For non-trivial changes, pause and ask whether there is a more elegant approach.
 - If a fix feels hacky, rework it into the simplest elegant solution.
 - Skip this for simple, obvious fixes; do not over-engineer.
 - Challenge the work before presenting it.
 
 ### Autonomous Bug Fixing
+
 - When given a bug report, investigate and fix it without asking for unnecessary hand-holding.
 - Use logs, errors, failing tests, and reproduction steps to identify the root cause.
 - Fix failing CI tests without waiting for step-by-step instructions.
 - Minimize context switching for the user.
 
 ## Task Management
+
 - Plan first: write the plan to `tasks/todo.md` with checkable items.
 - Verify the plan: check in before starting implementation when the task is substantial or ambiguous.
 - Track progress: mark items complete as work proceeds.
@@ -82,12 +89,14 @@ Normal verification is API-key-free. Copy `.env.example` only when adding option
 - Demo artifacts: for meaningful changes, create or update a `demo/` folder containing clear reproduction steps, test instructions, expected outputs, screenshots or sample data when useful, and any commands needed to verify the project behavior.
 
 ## Core Principles
+
 - Simplicity first: make every change as simple as possible.
 - Minimal impact: touch only what is necessary.
 - No laziness: find root causes, avoid temporary fixes, and hold senior developer standards.
 - No side effects: avoid unrelated changes that introduce new bugs.
 
 ## Security & Configuration Tips
+
 Do not commit secrets, patient data, or environment-specific credentials. Keep the local virtual environment disposable, and do not treat `doctor/` as a source directory.
 
 ## Code Search
@@ -144,6 +153,7 @@ If `semble` is not on `$PATH`, use `uvx --from "semble[mcp]" semble` in its plac
 6. Use grep only when you need exhaustive literal matches or quick confirmation of an exact string.
 
 <!-- gitnexus:start -->
+
 # GitNexus — Code Intelligence
 
 This project is indexed by GitNexus as **artifact-format-eval** (484 symbols, 814 relationships, 27 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
@@ -167,22 +177,22 @@ This project is indexed by GitNexus as **artifact-format-eval** (484 symbols, 81
 
 ## Resources
 
-| Resource | Use for |
-|----------|---------|
-| `gitnexus://repo/artifact-format-eval/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/artifact-format-eval/clusters` | All functional areas |
-| `gitnexus://repo/artifact-format-eval/processes` | All execution flows |
-| `gitnexus://repo/artifact-format-eval/process/{name}` | Step-by-step execution trace |
+| Resource                                              | Use for                                  |
+| ----------------------------------------------------- | ---------------------------------------- |
+| `gitnexus://repo/artifact-format-eval/context`        | Codebase overview, check index freshness |
+| `gitnexus://repo/artifact-format-eval/clusters`       | All functional areas                     |
+| `gitnexus://repo/artifact-format-eval/processes`      | All execution flows                      |
+| `gitnexus://repo/artifact-format-eval/process/{name}` | Step-by-step execution trace             |
 
 ## CLI
 
-| Task | Read this skill file |
-|------|---------------------|
-| Understand architecture / "How does X work?" | `.agents/skills/gitnexus/gitnexus-exploring/SKILL.md` |
-| Blast radius / "What breaks if I change X?" | `.agents/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
-| Trace bugs / "Why is X failing?" | `.agents/skills/gitnexus/gitnexus-debugging/SKILL.md` |
-| Rename / extract / split / refactor | `.agents/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
-| Tools, resources, schema reference | `.agents/skills/gitnexus/gitnexus-guide/SKILL.md` |
-| Index, status, clean, wiki CLI commands | `.agents/skills/gitnexus/gitnexus-cli/SKILL.md` |
+| Task                                         | Read this skill file                                        |
+| -------------------------------------------- | ----------------------------------------------------------- |
+| Understand architecture / "How does X work?" | `.agents/skills/gitnexus/gitnexus-exploring/SKILL.md`       |
+| Blast radius / "What breaks if I change X?"  | `.agents/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
+| Trace bugs / "Why is X failing?"             | `.agents/skills/gitnexus/gitnexus-debugging/SKILL.md`       |
+| Rename / extract / split / refactor          | `.agents/skills/gitnexus/gitnexus-refactoring/SKILL.md`     |
+| Tools, resources, schema reference           | `.agents/skills/gitnexus/gitnexus-guide/SKILL.md`           |
+| Index, status, clean, wiki CLI commands      | `.agents/skills/gitnexus/gitnexus-cli/SKILL.md`             |
 
 <!-- gitnexus:end -->

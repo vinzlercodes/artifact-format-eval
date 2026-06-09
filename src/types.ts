@@ -67,7 +67,14 @@ export interface ComprehensionQuestion {
   prompt: string;
   expected: string;
   aliases?: string[];
-  answer_kind?: "text" | "status" | "fact" | "required_count" | "evidence" | "diagram_edge" | "risk";
+  answer_kind?:
+    | "text"
+    | "status"
+    | "fact"
+    | "required_count"
+    | "evidence"
+    | "diagram_edge"
+    | "risk";
   canonical_path?: string;
   requires_visual?: boolean;
   requires_interaction?: boolean;
@@ -96,7 +103,9 @@ export interface CaseMutationSpec {
   description: string;
   patch: JsonPatchOperation[];
   affected_questions: string[];
-  expected_degradation: Array<"comprehension" | "accessibility" | "security" | "render" | "reviewability">;
+  expected_degradation: Array<
+    "comprehension" | "accessibility" | "security" | "render" | "reviewability"
+  >;
 }
 
 export interface BenchmarkCase {

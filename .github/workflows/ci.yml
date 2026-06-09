@@ -19,11 +19,13 @@ jobs:
           cache: pnpm
       - uses: astral-sh/setup-uv@v5
       - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
       - run: pnpm validate
       - run: pnpm typecheck
-      - run: pnpm exec playwright install chromium
-      - run: pnpm benchmark
+      - run: pnpm test
       - run: uv run pytest
+      - run: pnpm benchmark
+      - run: uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/artifact.ipynb
       - run: pnpm doctor --ci
 
   secrets-scan:

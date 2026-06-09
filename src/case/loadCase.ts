@@ -1,7 +1,12 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
-import type { BenchmarkCase, CaseMutationSpec, CanonicalCase, ComprehensionQuestion } from "../types.ts";
+import type {
+  BenchmarkCase,
+  CaseMutationSpec,
+  CanonicalCase,
+  ComprehensionQuestion,
+} from "../types.ts";
 import { readJson } from "../core/fs.ts";
 
 const CASES_DIR = "cases";
@@ -16,8 +21,12 @@ export async function listCaseIds(): Promise<string[]> {
 export async function loadBenchmarkCase(caseId: string): Promise<BenchmarkCase> {
   const root = join(process.cwd(), CASES_DIR, caseId);
   const canonical = await readJson<CanonicalCase>(join(root, "canonical.json"));
-  const questionsFile = await readJson<{ case_id: string; questions: ComprehensionQuestion[] }>(join(root, "questions.json"));
-  const mutationsFile = await readJson<{ case_id: string; mutations: CaseMutationSpec[] }>(join(root, "mutations.json"));
+  const questionsFile = await readJson<{ case_id: string; questions: ComprehensionQuestion[] }>(
+    join(root, "questions.json"),
+  );
+  const mutationsFile = await readJson<{ case_id: string; mutations: CaseMutationSpec[] }>(
+    join(root, "mutations.json"),
+  );
   return {
     caseId,
     canonical,

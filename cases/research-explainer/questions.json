@@ -1,10 +1,40 @@
 {
   "case_id": "research-explainer-001",
   "questions": [
-    { "id": "q1", "prompt": "What is the artifact status?", "expected": "ready_for_review", "answer_kind": "status", "canonical_path": "/status" },
-    { "id": "q2", "prompt": "Which evidence item covers citation review?", "expected": "ev-003", "answer_kind": "evidence", "target_evidence_id": "ev-003" },
-    { "id": "q3", "prompt": "How many documentation items are required?", "expected": "4", "answer_kind": "required_count", "canonical_path": "/required_documentation_count" },
-    { "id": "q4", "prompt": "What is the second diagram edge?", "expected": "retriever -> generator", "answer_kind": "diagram_edge", "target_diagram_edge": 1, "requires_visual": true },
-    { "id": "q5", "prompt": "Which risk has high severity?", "expected": "Generated answer cites an unsupported passage", "answer_kind": "risk" }
+    {
+      "id": "q1",
+      "prompt": "What is the artifact status?",
+      "expected": "ready_for_review",
+      "answer_kind": "status",
+      "canonical_path": "/status"
+    },
+    {
+      "id": "q2",
+      "prompt": "Which evidence item covers citation review?",
+      "expected": "ev-003",
+      "answer_kind": "evidence",
+      "target_evidence_id": "ev-003"
+    },
+    {
+      "id": "q3",
+      "prompt": "How many documentation items are required?",
+      "expected": "4",
+      "answer_kind": "required_count",
+      "canonical_path": "/required_documentation_count"
+    },
+    {
+      "id": "q4",
+      "prompt": "What is the second diagram edge?",
+      "expected": "retriever -> generator",
+      "answer_kind": "diagram_edge",
+      "target_diagram_edge": 1,
+      "requires_visual": true
+    },
+    {
+      "id": "q5",
+      "prompt": "Which risk has high severity?",
+      "expected": "Generated answer cites an unsupported passage",
+      "answer_kind": "risk"
+    }
   ]
 }

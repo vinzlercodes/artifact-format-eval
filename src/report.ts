@@ -33,9 +33,17 @@ function scoreSection(caseId: string, label: string, dir: string): string | null
       </tr>`;
     })
     .join("");
-  const profileWinners = ["human_reviewer", "agent_reader", "security_sensitive", "accessibility_first", "cost_sensitive"]
+  const profileWinners = [
+    "human_reviewer",
+    "agent_reader",
+    "security_sensitive",
+    "accessibility_first",
+    "cost_sensitive",
+  ]
     .map((profile) => {
-      const winner = Object.entries(scores.formats).sort((a, b) => (b[1].profiles[profile] ?? 0) - (a[1].profiles[profile] ?? 0))[0];
+      const winner = Object.entries(scores.formats).sort(
+        (a, b) => (b[1].profiles[profile] ?? 0) - (a[1].profiles[profile] ?? 0),
+      )[0];
       return `<li>${esc(profile)}: ${esc(winner?.[0] ?? "n/a")} (${formatScore(winner?.[1].profiles[profile])})</li>`;
     })
     .join("");
@@ -44,8 +52,10 @@ function scoreSection(caseId: string, label: string, dir: string): string | null
     .filter((format) => scores.formats[format])
     .map((format) => {
       const result = scores.formats[format];
-      const comprehensionDelta = (result.metrics.comprehension ?? 0) - (markdown?.metrics.comprehension ?? 0);
-      const reviewDelta = (result.metrics.reviewability ?? 0) - (markdown?.metrics.reviewability ?? 0);
+      const comprehensionDelta =
+        (result.metrics.comprehension ?? 0) - (markdown?.metrics.comprehension ?? 0);
+      const reviewDelta =
+        (result.metrics.reviewability ?? 0) - (markdown?.metrics.reviewability ?? 0);
       return `<li>${esc(format)}: comprehension ${formatScore(comprehensionDelta)}, reviewability ${formatScore(reviewDelta)}</li>`;
     })
     .join("");
