@@ -9,5 +9,8 @@
 - Live agent re-read accuracy depends on the chosen model and prompt and is outside normal setup.
 - Synthetic prior-auth cases are not clinical or payer guidance.
 - The five domains are small coverage fixtures, not full research studies.
+- The generic case schema still carries inherited prior-auth-shaped fields such as `patient`,
+  `status`, and `required_documentation_count`. Non-healthcare cases currently satisfy these
+  fields as compatibility scaffolding. A full generic schema migration is deferred to v0.1.2.
 - Oracle-backed reader-task scoring is a deterministic proxy, not human comprehension.
 - Current scores address task-specific tradeoffs; they do not prove HTML universally beats Markdown.
