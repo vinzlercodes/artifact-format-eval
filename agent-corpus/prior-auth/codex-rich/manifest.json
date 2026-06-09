@@ -1,0 +1,16 @@
+{
+  "case_id": "prior-auth",
+  "run_id": "codex-rich",
+  "source": "agent-authored-corpus",
+  "prompt": "Create rich HTML, Markdown, JSON, and notebook artifacts for Prior Authorization Case Summary.",
+  "authoring_agent": "Codex",
+  "date_policy": "static fixture generated from canonical case; no live provider call",
+  "formats": {
+    "markdown": "artifact.md",
+    "html-static": "artifact.html",
+    "html-svg": "artifact-svg.html",
+    "html-interactive": "artifact-interactive.html",
+    "json-renderer": "artifact.json",
+    "notebook": "artifact.ipynb"
+  }
+}

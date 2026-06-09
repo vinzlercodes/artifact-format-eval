@@ -55,6 +55,13 @@ uv sync
 uv run pytest
 ```
 
+If Python itself points at a broken install, recreate the local environment:
+
+```bash
+uv venv --clear --python 3.11 .venv
+uv sync
+```
+
 ## `pnpm doctor` reports a missing tool
 
 Install the missing prerequisite, then rerun:
@@ -85,6 +92,20 @@ pnpm report
 ```
 
 `pnpm report` expects scores to exist. `pnpm benchmark` creates everything from scratch.
+
+## Agent-corpus results are missing
+
+Run:
+
+```bash
+pnpm benchmark --source agent-corpus
+```
+
+Expected output:
+
+```text
+results/<case-id>/agent-corpus/codex-rich/
+```
 
 ## Generated outputs are stale
 

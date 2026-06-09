@@ -6,6 +6,8 @@ export type FormatId =
   | "json-renderer"
   | "notebook";
 
+export type BenchmarkSource = "templates" | "agent-corpus" | "all";
+
 export type MetricCategory =
   | "validity"
   | "cost"
@@ -65,6 +67,22 @@ export interface ComprehensionQuestion {
   prompt: string;
   expected: string;
   aliases?: string[];
+  answer_kind?: "text" | "status" | "fact" | "required_count" | "evidence" | "diagram_edge" | "risk";
+  canonical_path?: string;
+  requires_visual?: boolean;
+  requires_interaction?: boolean;
+  target_evidence_id?: string;
+  target_diagram_edge?: number;
+}
+
+export interface CorpusManifest {
+  case_id: string;
+  run_id: string;
+  source: "agent-authored-corpus";
+  prompt: string;
+  authoring_agent: string;
+  date_policy: string;
+  formats: Partial<Record<FormatId, string>>;
 }
 
 export interface JsonPatchOperation {

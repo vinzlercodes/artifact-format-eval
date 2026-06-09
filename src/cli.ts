@@ -5,6 +5,7 @@ import { evaluateCase } from "./evaluate/evaluate.ts";
 import { runGenerate } from "./generate/runGenerate.ts";
 import { runMutations } from "./mutate/runMutations.ts";
 import type { MutationId } from "./mutate/mutations.ts";
+import type { BenchmarkSource } from "./types.ts";
 import { buildReport } from "./report.ts";
 import { validateProject } from "./validate.ts";
 
@@ -38,7 +39,7 @@ async function main(): Promise<void> {
   } else if (command === "report") {
     await buildReport();
   } else if (command === "benchmark") {
-    await runBenchmark({ caseId: requestedCaseId });
+    await runBenchmark({ caseId: requestedCaseId, source: argValue("--source", "all") as BenchmarkSource });
   } else if (command === "doctor") {
     console.log(formatDoctor(await runDoctor({ ci: process.argv.includes("--ci") })));
   } else if (command === "clean") {
