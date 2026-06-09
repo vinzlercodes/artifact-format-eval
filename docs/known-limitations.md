@@ -5,7 +5,9 @@
 - Git diff metrics are proxies for reviewability, not a substitute for human review.
 - HTML render quality depends on browser and runtime assumptions.
 - Interactive artifacts may score better on task completion but worse on security and maintainability.
-- Agent re-read accuracy depends on the chosen model and prompt.
+- The checked-in agent corpus is repeatable, but it is not a live provider benchmark.
+- Live agent re-read accuracy depends on the chosen model and prompt and is outside normal setup.
 - Synthetic prior-auth cases are not clinical or payer guidance.
 - The five domains are small coverage fixtures, not full research studies.
-- Deterministic reader-task scoring is answer-key coverage, not human comprehension.
+- Oracle-backed reader-task scoring is a deterministic proxy, not human comprehension.
+- Current scores address task-specific tradeoffs; they do not prove HTML universally beats Markdown.

@@ -1,6 +1,21 @@
 # Methodology
 
-The benchmark evaluates fitness-for-task, not universal artifact superiority.
+The benchmark evaluates fitness-for-task, not universal artifact superiority. It was inspired by
+Simon Willison's May 8, 2026 post,
+[Using Claude Code: The Unreasonable Effectiveness of HTML](https://simonwillison.net/2026/May/8/unreasonable-effectiveness-of-html/),
+and the broader discussion around AI-generated HTML artifacts: HTML can express diagrams,
+interactions, navigation, and visual hierarchy, while Markdown remains cheaper, simpler, and easier
+to review as source.
+
+## Benchmark sources
+
+| Source | Purpose | Output |
+|---|---|---|
+| `templates` | Controlled deterministic baseline from canonical JSON. | `results/<case>/baseline/` |
+| `agent-corpus` | Checked-in Codex-authored fixtures with richer affordances and provenance manifests. | `results/<case>/agent-corpus/codex-rich/` |
+
+The default `pnpm benchmark` runs both sources. Source-specific runs are available with
+`--source templates` and `--source agent-corpus`.
 
 ## Comparison layers
 
@@ -33,10 +48,19 @@ Volatile metadata is excluded from `diff_noise.normalized` and included in
 
 ## Current claim
 
-This harness generates comparable artifact variants from small controlled fixtures and
-automatically measures per-format schema validity, artifact cost, render quality,
-accessibility signals, security violations, reviewability, deterministic reader-task coverage,
+This harness generates comparable template variants, evaluates an offline agent-authored corpus,
+and automatically measures per-format schema validity, artifact cost, render quality,
+accessibility signals, security violations, reviewability, oracle-backed reader-task coverage,
 and observed mutation impact.
 
-Reader-task coverage is local answer-key matching. It is useful for regression testing and
-controlled comparison, but it is not a substitute for human studies or live model evaluation.
+Reader-task coverage combines answer accuracy, findability landmarks, visual edge checks, and
+interaction smoke tests. It is useful for regression testing and controlled comparison, but it
+is not a substitute for human studies or live model evaluation.
+
+The intended interpretation is comparative and conditional:
+
+- HTML affordances are useful when the task needs spatial structure, navigation, annotation, or
+  interaction.
+- Markdown remains useful when compact source review, ecosystem compatibility, or low token cost is
+  the primary requirement.
+- Profile scores expose these tradeoffs instead of forcing one universal winner.

@@ -7,6 +7,9 @@ pnpm doctor
 pnpm benchmark
 ```
 
+`pnpm benchmark` runs both benchmark sources: deterministic templates and the checked-in
+agent corpus. Open `site-dist/index.html` after it completes.
+
 ## Full verification
 
 ```bash
@@ -101,7 +104,30 @@ Builds `site-dist/index.html`.
 pnpm benchmark
 ```
 
-Runs the full local benchmark pipeline.
+Runs the full local benchmark pipeline for all cases and both sources.
+
+```bash
+pnpm benchmark --source templates
+pnpm benchmark --source agent-corpus
+pnpm benchmark:templates
+pnpm benchmark:agent
+```
+
+Runs only deterministic templates or only the checked-in agent corpus. The default benchmark
+runs both sources and groups them in `site-dist/index.html`.
+
+Template output:
+
+```text
+results/<case-id>/baseline/
+results/<case-id>/mutations/
+```
+
+Agent-corpus output:
+
+```text
+results/<case-id>/agent-corpus/codex-rich/
+```
 
 ## Notebook commands
 

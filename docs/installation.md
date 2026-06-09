@@ -14,6 +14,8 @@ Python 3.11 or newer
 uv
 ```
 
+The repository includes `.python-version` pinned to Python 3.11 for reproducible uv environments.
+
 Check them:
 
 ```bash
@@ -65,13 +67,14 @@ The doctor checks:
 pnpm benchmark
 ```
 
-This runs:
+This runs all cases for both sources:
 
 ```text
 validate
-generate --case prior-auth
-mutate --case prior-auth --mutation all
-evaluate --case prior-auth
+generate template artifacts
+mutate template artifacts
+evaluate templates
+copy/evaluate agent-corpus artifacts
 report
 ```
 
@@ -79,6 +82,7 @@ Successful output creates:
 
 ```text
 results/prior-auth/baseline/
+results/prior-auth/agent-corpus/codex-rich/
 results/prior-auth/mutations/
 site-dist/index.html
 ```

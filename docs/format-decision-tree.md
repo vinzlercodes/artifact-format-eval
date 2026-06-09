@@ -1,5 +1,8 @@
 # Format Decision Tree
 
+Use this as the practical decision layer for the HTML-versus-Markdown tradeoff measured by the
+benchmark.
+
 Use Markdown when source review and lightweight editing are primary.
 
 Use static HTML when presentation and comprehension matter more than direct source editing.
