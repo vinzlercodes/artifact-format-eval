@@ -1,0 +1,171 @@
+{
+  "metadata": {
+    "source_hash": "sha256:fe6450cfa258903457888a53d9d82ed74785daccdc894af182cf3c9f897ce787",
+    "generator": "agent-corpus-json@0.1.0",
+    "schema_version": "0.1.0",
+    "case_id": "prior-auth-001"
+  },
+  "case": {
+    "case_id": "prior-auth-001",
+    "schema_version": "0.1.0",
+    "artifact_type": "prior_auth_case_summary",
+    "domain": "prior-auth",
+    "title": "Prior Authorization Case Summary",
+    "patient": {
+      "age": 47,
+      "sex": "F"
+    },
+    "status": "additional_info_requested",
+    "summary": "MRI lumbar spine requires prior authorization before scheduling.",
+    "required_documentation_count": 3,
+    "facts": {
+      "authorization_status": {
+        "label": "Authorization status",
+        "value": "additional_info_requested"
+      },
+      "next_action": {
+        "label": "Next action",
+        "value": "Submit the clinical note and therapy history"
+      },
+      "high_risk": {
+        "label": "High risk",
+        "value": "Documentation mismatch between policy and clinical note"
+      },
+      "accessibility_mutation": {
+        "label": "Accessibility mutation active",
+        "value": false
+      },
+      "security_mutation": {
+        "label": "Security mutation active",
+        "value": false
+      }
+    },
+    "evidence": [
+      {
+        "id": "ev-001",
+        "title": "Payer policy requires conservative therapy documentation",
+        "included": true
+      },
+      {
+        "id": "ev-002",
+        "title": "Clinical note documents six weeks of physical therapy",
+        "included": true
+      },
+      {
+        "id": "ev-003",
+        "title": "Imaging request includes neurologic deficit rationale",
+        "included": true
+      }
+    ],
+    "sections": [
+      {
+        "id": "patient_context",
+        "title": "Patient Context",
+        "claims": [
+          {
+            "id": "claim-001",
+            "text": "The request is for a lumbar spine MRI.",
+            "evidence": [
+              "ev-001"
+            ]
+          },
+          {
+            "id": "claim-002",
+            "text": "The case is waiting on payer-requested supporting documentation.",
+            "evidence": [
+              "ev-002",
+              "ev-003"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "next_action",
+        "title": "Next Action",
+        "claims": [
+          {
+            "id": "claim-003",
+            "text": "Submit the clinical note and therapy history before the payer deadline.",
+            "evidence": [
+              "ev-002"
+            ]
+          }
+        ]
+      }
+    ],
+    "diagram": {
+      "edges": [
+        {
+          "from": "clinician",
+          "to": "payer",
+          "label": "submits request"
+        },
+        {
+          "from": "payer",
+          "to": "clinic_ops",
+          "label": "requests documentation"
+        },
+        {
+          "from": "clinic_ops",
+          "to": "payer",
+          "label": "returns evidence packet"
+        }
+      ]
+    },
+    "risks": [
+      {
+        "id": "risk-001",
+        "label": "Deadline missed before evidence packet is returned",
+        "severity": "medium"
+      },
+      {
+        "id": "risk-002",
+        "label": "Documentation mismatch between policy and clinical note",
+        "severity": "high"
+      }
+    ],
+    "questions": [
+      "What is the current case status?",
+      "Which evidence item documents physical therapy?",
+      "What action is needed next?",
+      "How many documentation items are required?",
+      "Which risk has high severity?"
+    ]
+  },
+  "affordances": {
+    "diagram": [
+      {
+        "from": "clinician",
+        "to": "payer",
+        "label": "submits request"
+      },
+      {
+        "from": "payer",
+        "to": "clinic_ops",
+        "label": "requests documentation"
+      },
+      {
+        "from": "clinic_ops",
+        "to": "payer",
+        "label": "returns evidence packet"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "ev-001",
+        "title": "Payer policy requires conservative therapy documentation",
+        "included": true
+      },
+      {
+        "id": "ev-002",
+        "title": "Clinical note documents six weeks of physical therapy",
+        "included": true
+      },
+      {
+        "id": "ev-003",
+        "title": "Imaging request includes neurologic deficit rationale",
+        "included": true
+      }
+    ]
+  }
+}
