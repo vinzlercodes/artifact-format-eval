@@ -12,47 +12,69 @@ function formatScore(value: unknown): string {
   return typeof value === "number" ? value.toFixed(3) : "";
 }
 
+function scoreSection(caseId: string, label: string, dir: string): string | null {
+  const scoresPath = join(dir, "scores.by-format.json");
+  if (!existsSync(scoresPath)) return null;
+  const scores = JSON.parse(readFileSync(scoresPath, "utf8")) as {
+    source?: string;
+    formats: Record<string, { metrics: Record<string, number>; profiles: Record<string, number> }>;
+  };
+  const rows = Object.entries(scores.formats)
+    .map(([format, result]) => {
+      const bestProfile = Object.entries(result.profiles).sort((a, b) => b[1] - a[1])[0];
+      return `<tr>
+        <td>${esc(format)}</td>
+        <td>${formatScore(result.metrics.comprehension)}</td>
+        <td>${formatScore(result.metrics.reviewability)}</td>
+        <td>${formatScore(result.metrics.accessibility)}</td>
+        <td>${formatScore(result.metrics.security)}</td>
+        <td>${formatScore(result.metrics.cost)}</td>
+        <td>${esc(bestProfile?.[0] ?? "")}: ${formatScore(bestProfile?.[1])}</td>
+      </tr>`;
+    })
+    .join("");
+  const profileWinners = ["human_reviewer", "agent_reader", "security_sensitive", "accessibility_first", "cost_sensitive"]
+    .map((profile) => {
+      const winner = Object.entries(scores.formats).sort((a, b) => (b[1].profiles[profile] ?? 0) - (a[1].profiles[profile] ?? 0))[0];
+      return `<li>${esc(profile)}: ${esc(winner?.[0] ?? "n/a")} (${formatScore(winner?.[1].profiles[profile])})</li>`;
+    })
+    .join("");
+  const markdown = scores.formats.markdown;
+  const helped = ["html-static", "html-svg", "html-interactive"]
+    .filter((format) => scores.formats[format])
+    .map((format) => {
+      const result = scores.formats[format];
+      const comprehensionDelta = (result.metrics.comprehension ?? 0) - (markdown?.metrics.comprehension ?? 0);
+      const reviewDelta = (result.metrics.reviewability ?? 0) - (markdown?.metrics.reviewability ?? 0);
+      return `<li>${esc(format)}: comprehension ${formatScore(comprehensionDelta)}, reviewability ${formatScore(reviewDelta)}</li>`;
+    })
+    .join("");
+  return `<section>
+    <h2>${esc(caseId)} · ${esc(label)}</h2>
+    <h3>Profile Winners</h3>
+    <ul>${profileWinners}</ul>
+    <h3>Where HTML helped</h3>
+    <ul>${helped}</ul>
+    <h3>Format Scores</h3>
+    <table>
+      <thead><tr><th>Format</th><th>Reader</th><th>Review</th><th>A11y</th><th>Security</th><th>Cost</th><th>Best profile</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p><a href="../${esc(dir)}/scores.by-format.json">scores.by-format.json</a> · <a href="../${esc(dir)}/evidence.by-format.json">evidence.by-format.json</a></p>
+  </section>`;
+}
+
 export async function buildReport(): Promise<void> {
   const caseIds = await listCaseIds();
   const sections: string[] = [];
 
   for (const caseId of caseIds) {
     const baseline = join(process.cwd(), "results", caseId, "baseline");
-    const scoresPath = join(baseline, "scores.by-format.json");
-    if (!existsSync(scoresPath)) continue;
-    const scores = JSON.parse(readFileSync(scoresPath, "utf8")) as {
-      formats: Record<string, { metrics: Record<string, number>; profiles: Record<string, number> }>;
-    };
-    const rows = Object.entries(scores.formats)
-      .map(([format, result]) => {
-        const bestProfile = Object.entries(result.profiles).sort((a, b) => b[1] - a[1])[0];
-        return `<tr>
-          <td>${esc(format)}</td>
-          <td>${formatScore(result.metrics.comprehension)}</td>
-          <td>${formatScore(result.metrics.accessibility)}</td>
-          <td>${formatScore(result.metrics.security)}</td>
-          <td>${formatScore(result.metrics.cost)}</td>
-          <td>${esc(bestProfile?.[0] ?? "")}: ${formatScore(bestProfile?.[1])}</td>
-        </tr>`;
-      })
-      .join("");
-    const profileWinners = ["human_reviewer", "agent_reader", "security_sensitive", "accessibility_first", "cost_sensitive"]
-      .map((profile) => {
-        const winner = Object.entries(scores.formats).sort((a, b) => (b[1].profiles[profile] ?? 0) - (a[1].profiles[profile] ?? 0))[0];
-        return `<li>${esc(profile)}: ${esc(winner?.[0] ?? "n/a")} (${formatScore(winner?.[1].profiles[profile])})</li>`;
-      })
-      .join("");
-    sections.push(`<section>
-      <h2>${esc(caseId)}</h2>
-      <h3>Profile Winners</h3>
-      <ul>${profileWinners}</ul>
-      <h3>Format Scores</h3>
-      <table>
-        <thead><tr><th>Format</th><th>Reader</th><th>A11y</th><th>Security</th><th>Cost</th><th>Best profile</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <p><a href="../results/${esc(caseId)}/baseline/scores.by-format.json">scores.by-format.json</a> · <a href="../results/${esc(caseId)}/baseline/evidence.by-format.json">evidence.by-format.json</a></p>
-    </section>`);
+    const templateSection = scoreSection(caseId, "templates", baseline);
+    if (templateSection) sections.push(templateSection);
+    const corpus = join(process.cwd(), "results", caseId, "agent-corpus", "codex-rich");
+    const corpusSection = scoreSection(caseId, "agent-corpus", corpus);
+    if (corpusSection) sections.push(corpusSection);
   }
 
   const html = `<!doctype html>
@@ -75,7 +97,7 @@ export async function buildReport(): Promise<void> {
 <body>
 <main>
   <h1>Artifact Format Evaluation Harness</h1>
-  <p>This report compares generated artifact formats across small coverage fixtures. Reader scores are deterministic answer-key coverage, not human-study or live LLM results.</p>
+  <p>This report compares template artifacts and API-key-free agent-corpus artifacts. Reader scores combine answer accuracy, findability, visual checks, and interaction smoke tests; this is still not a human-study result.</p>
   ${sections.join("\n")}
 </main>
 </body>

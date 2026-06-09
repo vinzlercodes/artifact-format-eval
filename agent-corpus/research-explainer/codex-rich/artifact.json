@@ -1,0 +1,167 @@
+{
+  "metadata": {
+    "source_hash": "sha256:5f8c22d6af9fd7eb629e516a1645c3eb19dcd84307f2ed5411ca4666b92ff41d",
+    "generator": "agent-corpus-json@0.1.0",
+    "schema_version": "0.1.0",
+    "case_id": "research-explainer-001"
+  },
+  "case": {
+    "case_id": "research-explainer-001",
+    "schema_version": "0.1.0",
+    "artifact_type": "research_explainer",
+    "domain": "research-explainer",
+    "title": "Retrieval-Augmented Generation Explainer",
+    "patient": {
+      "age": 0,
+      "sex": "X"
+    },
+    "status": "ready_for_review",
+    "summary": "RAG combines retrieval, grounding, generation, and citation review to reduce unsupported answers.",
+    "required_documentation_count": 4,
+    "facts": {
+      "concept_status": {
+        "label": "Concept status",
+        "value": "ready_for_review"
+      },
+      "core_concept": {
+        "label": "Core concept",
+        "value": "retrieval-augmented generation"
+      },
+      "first_step": {
+        "label": "First step",
+        "value": "retrieve relevant passages"
+      },
+      "next_action": {
+        "label": "Next action",
+        "value": "verify citations against retrieved passages"
+      },
+      "accessibility_mutation": {
+        "label": "Accessibility mutation active",
+        "value": false
+      },
+      "security_mutation": {
+        "label": "Security mutation active",
+        "value": false
+      }
+    },
+    "evidence": [
+      {
+        "id": "ev-001",
+        "title": "Retriever returns candidate passages",
+        "included": true
+      },
+      {
+        "id": "ev-002",
+        "title": "Generator drafts an answer grounded in passages",
+        "included": true
+      },
+      {
+        "id": "ev-003",
+        "title": "Reviewer verifies citations",
+        "included": true
+      }
+    ],
+    "sections": [
+      {
+        "id": "concept",
+        "title": "Concept",
+        "claims": [
+          {
+            "id": "claim-001",
+            "text": "Retrieval-augmented generation starts by retrieving relevant passages.",
+            "evidence": [
+              "ev-001"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "review",
+        "title": "Review",
+        "claims": [
+          {
+            "id": "claim-002",
+            "text": "Citation review checks generated claims against retrieved passages.",
+            "evidence": [
+              "ev-003"
+            ]
+          }
+        ]
+      }
+    ],
+    "diagram": {
+      "edges": [
+        {
+          "from": "query",
+          "to": "retriever",
+          "label": "asks"
+        },
+        {
+          "from": "retriever",
+          "to": "generator",
+          "label": "passes context"
+        },
+        {
+          "from": "generator",
+          "to": "citation_review",
+          "label": "requires verification"
+        }
+      ]
+    },
+    "risks": [
+      {
+        "id": "risk-001",
+        "label": "Generated answer cites an unsupported passage",
+        "severity": "high"
+      },
+      {
+        "id": "risk-002",
+        "label": "Retriever misses important context",
+        "severity": "medium"
+      }
+    ],
+    "questions": [
+      "What concept is explained?",
+      "What is the first step?",
+      "What action is needed next?",
+      "Which evidence item covers citation review?",
+      "Which risk has high severity?"
+    ]
+  },
+  "affordances": {
+    "diagram": [
+      {
+        "from": "query",
+        "to": "retriever",
+        "label": "asks"
+      },
+      {
+        "from": "retriever",
+        "to": "generator",
+        "label": "passes context"
+      },
+      {
+        "from": "generator",
+        "to": "citation_review",
+        "label": "requires verification"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "ev-001",
+        "title": "Retriever returns candidate passages",
+        "included": true
+      },
+      {
+        "id": "ev-002",
+        "title": "Generator drafts an answer grounded in passages",
+        "included": true
+      },
+      {
+        "id": "ev-003",
+        "title": "Reviewer verifies citations",
+        "included": true
+      }
+    ]
+  }
+}

@@ -17,6 +17,8 @@
     "evaluate:agent": "node --import tsx src/cli.ts evaluate:reader",
     "report": "node --import tsx src/cli.ts report",
     "benchmark": "node --import tsx src/cli.ts benchmark",
+    "benchmark:templates": "node --import tsx src/cli.ts benchmark --source templates",
+    "benchmark:agent": "node --import tsx src/cli.ts benchmark --source agent-corpus",
     "doctor": "node --import tsx src/cli.ts doctor",
     "clean": "node --import tsx src/cli.ts clean",
     "typecheck": "tsc --noEmit",

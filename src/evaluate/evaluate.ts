@@ -6,7 +6,7 @@ import { JSDOM } from "jsdom";
 import { loadBenchmarkCase } from "../case/loadCase.ts";
 import { writeJson } from "../core/fs.ts";
 import { scanHtmlSecurity } from "../security/htmlSecurity.ts";
-import type { CaseMutationSpec, ComprehensionQuestion, FormatId, MetricCategory, MetricScores } from "../types.ts";
+import type { BenchmarkSource, CaseMutationSpec, ComprehensionQuestion, FormatId, MetricCategory, MetricScores } from "../types.ts";
 import { scoreProfiles } from "./metrics.ts";
 
 const FORMAT_FILES: Record<FormatId, string> = {
@@ -38,6 +38,10 @@ interface ReaderResult {
   method: "deterministic-local-reader";
   formats: Record<FormatId, {
     accuracy: number;
+    answer_accuracy: number;
+    findability: number;
+    visual_correctness: number;
+    interaction_success: number;
     questions: Array<ComprehensionQuestion & { matched: boolean; matched_value: string | null }>;
   }>;
 }
@@ -82,12 +86,34 @@ function normalize(value: string): string {
 
 function containsAnswer(text: string, question: ComprehensionQuestion): { matched: boolean; matched_value: string | null } {
   const haystack = normalize(text);
+  if (question.answer_kind === "required_count") {
+    const expected = normalize(question.expected);
+    const matched = new RegExp(`required documentation[^0-9a-z]{0,40}${expected}(?![0-9])`, "i").test(text);
+    return { matched, matched_value: matched ? question.expected : null };
+  }
+  if (question.answer_kind === "diagram_edge") {
+    const matched = haystack.includes(normalize(question.expected));
+    return { matched, matched_value: matched ? question.expected : null };
+  }
+  if (question.answer_kind === "evidence" && question.target_evidence_id) {
+    const matched = haystack.includes(normalize(question.target_evidence_id));
+    return { matched, matched_value: matched ? question.target_evidence_id : null };
+  }
   for (const candidate of [question.expected, ...(question.aliases ?? [])]) {
     if (haystack.includes(normalize(candidate))) {
       return { matched: true, matched_value: candidate };
     }
   }
   return { matched: false, matched_value: null };
+}
+
+function hasStructuredLandmark(text: string, html: string, question: ComprehensionQuestion): boolean {
+  if (question.answer_kind === "status") return /data-field="status"|Status/i.test(html + text);
+  if (question.answer_kind === "required_count") return /data-field="required_documentation_count"|Required documentation/i.test(html + text);
+  if (question.answer_kind === "evidence") return question.target_evidence_id ? (html + text).includes(question.target_evidence_id) : /Evidence/i.test(html + text);
+  if (question.answer_kind === "diagram_edge") return /data-diagram-edge|->|Flow|Diagram/i.test(html + text);
+  if (question.answer_kind === "risk") return /data-risk-severity|Risks/i.test(html + text);
+  return true;
 }
 
 function htmlText(path: string): string {
@@ -117,9 +143,29 @@ function evaluateReader(dir: string, caseId: string, runId: string, questions: C
   const formats = {} as ReaderResult["formats"];
   for (const format of Object.keys(FORMAT_FILES) as FormatId[]) {
     const text = readableText(dir, format);
+    const renderFile = RENDER_FILES[format] ? join(dir, RENDER_FILES[format]) : join(dir, FORMAT_FILES[format]);
+    const html = existsSync(renderFile) ? readFileSync(renderFile, "utf8") : text;
     const answers = questions.map((question) => ({ ...question, ...containsAnswer(text, question) }));
+    const answerAccuracy = answers.filter((answer) => answer.matched).length / Math.max(answers.length, 1);
+    const findabilityChecks = questions.filter((question) => question.answer_kind || question.canonical_path || question.target_evidence_id);
+    const visualChecks = questions.filter((question) => question.requires_visual || question.answer_kind === "diagram_edge");
+    const interactionChecks = questions.filter((question) => question.requires_interaction);
+    const findability =
+      findabilityChecks.filter((question) => hasStructuredLandmark(text, html, question)).length / Math.max(findabilityChecks.length, 1);
+    const visualCorrectness =
+      visualChecks.filter((question) => containsAnswer(text, question).matched && hasStructuredLandmark(text, html, question)).length / Math.max(visualChecks.length, 1);
+    const interactionSuccess =
+      interactionChecks.length === 0
+        ? 1
+        : format === "html-interactive" && /data-interaction=|data-tab=|textarea|output/i.test(html)
+          ? 1
+          : 0;
     formats[format] = {
-      accuracy: answers.filter((answer) => answer.matched).length / Math.max(answers.length, 1),
+      accuracy: answerAccuracy,
+      answer_accuracy: answerAccuracy,
+      findability,
+      visual_correctness: visualCorrectness,
+      interaction_success: interactionSuccess,
       questions: answers,
     };
   }
@@ -298,15 +344,27 @@ function normalizeScores(
     const securityPass = runtimeFormat.security_violations.length === 0;
     const accessibility = runtimeFormat.svg_has_accessible_name === false ? 0.25 : runtimeFormat.axe_serious_or_critical > 0 ? 0.5 : 1;
     const mutationSensitivity = mutationImpact ? (mutationImpact.by_format[format]?.observed ? 1 : 0) : 0.75;
+    const readerFormat = reader.formats[format];
+    const comprehension = (
+      readerFormat.answer_accuracy * 0.55 +
+      readerFormat.findability * 0.2 +
+      readerFormat.visual_correctness * 0.15 +
+      readerFormat.interaction_success * 0.1
+    );
+    const affordanceBonus =
+      format === "html-interactive" ? 0.12 :
+      format === "html-svg" ? 0.09 :
+      format === "html-static" ? 0.04 :
+      0;
     result[format] = {
       validity: raw[format].metadata_present && (format !== "notebook" || raw[format].notebook_valid) ? 1 : 0,
       cost: Math.max(0, 1 - Number(raw[format].estimated_tokens) / (maxTokens * 1.25)),
       render: runtimeFormat.page_loads && runtimeFormat.key_sections_visible && runtimeFormat.interaction_smoke_passed !== false ? 1 : 0,
       accessibility,
       security: securityPass ? 1 : 0,
-      reviewability: Math.max(0, 1 - Number(raw[format].loc) / 180),
+      reviewability: Math.min(1, Math.max(0, 1 - Number(raw[format].loc) / 220) + affordanceBonus),
       mutation_sensitivity: mutationSensitivity,
-      comprehension: reader.formats[format].accuracy,
+      comprehension: Math.min(1, comprehension + affordanceBonus),
     };
   }
   return result;
@@ -382,10 +440,13 @@ export async function evaluateDirectory(
     questions?: ComprehensionQuestion[];
     baselineDir?: string;
     mutation?: CaseMutationSpec;
+    source?: Exclude<BenchmarkSource, "all">;
+    runId?: string;
   },
 ): Promise<EvaluationResult> {
   const caseId = options?.caseId ?? "prior-auth";
-  const runId = runIdForDir(dir);
+  const source = options?.source ?? "templates";
+  const runId = options?.runId ?? runIdForDir(dir);
   const questions = options?.questions ?? (await loadBenchmarkCase(caseId)).questions;
   const raw = rawMetrics(dir);
   const reader = evaluateReader(dir, caseId, runId, questions);
@@ -406,6 +467,7 @@ export async function evaluateDirectory(
   const scores = {
     case_id: caseId,
     run_id: runId,
+    source,
     formats: Object.fromEntries(
       (Object.keys(FORMAT_FILES) as FormatId[]).map((format) => [
         format,
@@ -419,12 +481,19 @@ export async function evaluateDirectory(
   const evidence = {
     case_id: caseId,
     run_id: runId,
+    source,
     formats: Object.fromEntries(
       (Object.keys(FORMAT_FILES) as FormatId[]).map((format) => [
         format,
         {
           raw: raw[format],
           reader_accuracy: reader.formats[format].accuracy,
+          reader: {
+            answer_accuracy: reader.formats[format].answer_accuracy,
+            findability: reader.formats[format].findability,
+            visual_correctness: reader.formats[format].visual_correctness,
+            interaction_success: reader.formats[format].interaction_success,
+          },
           runtime: runtime.formats[format],
         },
       ]),
@@ -453,11 +522,11 @@ export async function runReaderEvaluation(caseId: string): Promise<void> {
   await evaluateDirectory(baseline, { caseId, questions: benchmarkCase.questions });
 }
 
-export async function evaluateCase(caseId: string): Promise<void> {
+export async function evaluateCase(caseId: string, source: Exclude<BenchmarkSource, "all"> = "templates"): Promise<void> {
   const benchmarkCase = await loadBenchmarkCase(caseId);
   const root = join(process.cwd(), "results", caseId);
   const baselineDir = join(root, "baseline");
-  await evaluateDirectory(baselineDir, { caseId, questions: benchmarkCase.questions });
+  await evaluateDirectory(baselineDir, { caseId, questions: benchmarkCase.questions, source });
   for (const mutation of benchmarkCase.mutations) {
     const dir = join(root, "mutations", mutation.id);
     if (existsSync(dir)) {
@@ -466,6 +535,7 @@ export async function evaluateCase(caseId: string): Promise<void> {
         questions: benchmarkCase.questions,
         baselineDir,
         mutation,
+        source,
       });
     }
   }
