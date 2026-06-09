@@ -26,7 +26,6 @@ uv run pytest
 pnpm benchmark
 uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/artifact.ipynb
 pnpm doctor --ci
-pnpm test:playwright
 ```
 
 Install Chromium before running the Playwright gate locally:
