@@ -2,6 +2,9 @@
 
 Security in v0.1 means artifact sandbox hygiene, not a complete application security review.
 
+The normal benchmark is API-key-free. Agent-corpus artifacts are checked in and evaluated locally;
+no provider calls occur during verification.
+
 | Check | Applies to | Pass condition |
 |---|---|---|
 | No external network | all browser-rendered formats | browser checks see no external requests |

@@ -4,10 +4,13 @@
 
 ```text
 schemas/canonical-case.schema.json
-cases/prior-auth/canonical.json
+cases/<case-id>/canonical.json
+cases/<case-id>/questions.json
+cases/<case-id>/mutations.json
 ```
 
-The canonical case is the only factual source for generated artifacts.
+The canonical case is the factual source for generated artifacts. Question manifests define
+oracle-backed reader tasks. Mutation manifests define expected degradation channels.
 
 ## Format generation
 
@@ -24,6 +27,20 @@ Generates:
 - Interactive HTML.
 - JSON+renderer.
 - Notebook.
+
+## Agent corpus
+
+```text
+agent-corpus/<case-id>/codex-rich/
+src/corpus/
+```
+
+The corpus is a checked-in, API-key-free set of Codex-authored artifacts with provenance
+manifests. Benchmark output is copied under:
+
+```text
+results/<case-id>/agent-corpus/codex-rich/
+```
 
 Stable metadata lives inside artifact source:
 
@@ -66,10 +83,17 @@ src/evaluate/evaluate.ts
 Scores are written to:
 
 ```text
+metrics.raw.by-format.json
+comprehension.by-format.json
+runtime.by-format.json
+evidence.by-format.json
+scores.by-format.json
 scores.raw.json
 scores.normalized.json
 scores.by-profile.json
 ```
+
+Reader scoring includes answer accuracy, findability, visual correctness, and interaction success.
 
 ## Security checks
 
@@ -98,7 +122,8 @@ src/report.ts
 site-dist/index.html
 ```
 
-The generated report is static HTML.
+The generated report is static HTML grouped by benchmark source, with profile winners and
+"Where HTML helped" deltas.
 
 ## Tests
 
@@ -111,4 +136,4 @@ tests/playwright/
 ```
 
 `tests/playwright/` is reserved for future browser-binary-backed tests. The current default
-benchmark uses static render/security checks so fresh installs do not need a browser download.
+test command uses jsdom fallback checks so fresh installs do not need a browser download.

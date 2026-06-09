@@ -55,12 +55,15 @@ CI runs:
 
 ```text
 pnpm validate
+pnpm typecheck
+pnpm test
 pnpm benchmark
 uv run pytest
 pnpm doctor --ci
 ```
 
-It does not run optional live agent evaluation.
+It runs deterministic templates and checked-in agent-corpus evaluation. It does not run optional
+live provider-backed agent evaluation.
 
 ## Secrets
 

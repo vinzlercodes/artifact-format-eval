@@ -9,3 +9,5 @@ Tracked signals:
 - Serious or critical violation count.
 - Presence of expected headings and key sections.
 - SVG title or accessible name for diagram artifacts.
+- Interaction smoke checks for interactive artifacts.
+- Landmark-style structure used by reader findability scoring.

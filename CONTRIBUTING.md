@@ -17,6 +17,8 @@ Use the narrowest command while editing:
 pnpm test
 pnpm typecheck
 uv run pytest
+pnpm benchmark --source templates
+pnpm benchmark --source agent-corpus
 ```
 
 Before sharing changes:
@@ -47,6 +49,14 @@ pnpm verify
 3. Put volatile metadata only in sidecars.
 4. Add security and evaluation coverage.
 5. Update `docs/methodology.md`.
+
+## Updating the agent corpus
+
+1. Keep `agent-corpus/<case-id>/codex-rich/manifest.json` honest about provenance.
+2. Do not require API keys for normal verification.
+3. Preserve all six format surfaces when practical.
+4. Run `pnpm benchmark --source agent-corpus`.
+5. Check `site-dist/index.html` for source-grouped results.
 
 ## Generated files
 
