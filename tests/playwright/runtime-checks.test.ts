@@ -30,21 +30,16 @@ test("baseline HTML artifacts load from file URLs", async ({ page }) => {
   for (const artifact of baselineArtifacts) {
     const artifactPath = join(baselineDir, artifact);
 
-    await page.goto(pathToFileURL(artifactPath).href, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(pathToFileURL(artifactPath).href, { waitUntil: "domcontentloaded" });
 
     await expect(page.locator("h1")).toBeVisible();
   }
 });
 
-test("baseline HTML artifacts make no external http requests", async ({
-  page,
-}) => {
+test("baseline HTML artifacts make no external http requests", async ({ page }) => {
   const externalRequests: string[] = [];
   page.on("request", (request) => {
-    if (/^https?:\/\//i.test(request.url()))
-      externalRequests.push(request.url());
+    if (/^https?:\/\//i.test(request.url())) externalRequests.push(request.url());
   });
 
   for (const artifact of baselineArtifacts) {
@@ -57,26 +52,19 @@ test("baseline HTML artifacts make no external http requests", async ({
 });
 
 test("interactive included filter changes visible state", async ({ page }) => {
-  await page.goto(
-    pathToFileURL(join(baselineDir, "artifact-interactive.html")).href,
-    {
-      waitUntil: "domcontentloaded",
-    },
-  );
+  await page.goto(pathToFileURL(join(baselineDir, "artifact-interactive.html")).href, {
+    waitUntil: "domcontentloaded",
+  });
 
   const visibleBefore = await page.locator(".card:visible").count();
 
   await page.locator('button[data-filter="included"]').click();
 
-  await expect(page.locator("#interaction-result")).toHaveText(
-    "Focused included",
-  );
+  await expect(page.locator("#interaction-result")).toHaveText("Focused included");
   await expect(page.locator(".fact").first()).toBeHidden();
   await expect(page.locator(".risk").first()).toBeHidden();
   await expect(page.locator(".evidence").first()).toBeVisible();
-  await expect
-    .poll(() => page.locator(".card:visible").count())
-    .toBeLessThan(visibleBefore);
+  await expect.poll(() => page.locator(".card:visible").count()).toBeLessThan(visibleBefore);
 });
 
 test("accessibility mutation writes html-svg runtime degradation evidence", () => {
@@ -94,7 +82,5 @@ test("accessibility mutation writes html-svg runtime degradation evidence", () =
   };
 
   expect(runtime.formats["html-svg"].svg_has_accessible_name).toBe(false);
-  expect(runtime.formats["html-svg"].axe_serious_or_critical).toBeGreaterThan(
-    0,
-  );
+  expect(runtime.formats["html-svg"].axe_serious_or_critical).toBeGreaterThan(0);
 });
