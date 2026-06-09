@@ -26,6 +26,13 @@ uv run pytest
 pnpm benchmark
 uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/artifact.ipynb
 pnpm doctor --ci
+pnpm test:playwright
+```
+
+Install Chromium before running the Playwright gate locally:
+
+```bash
+pnpm exec playwright install chromium
 ```
 
 ## Project checks
@@ -47,6 +54,12 @@ pnpm test
 ```
 
 Runs TypeScript unit, fixture, and security tests.
+
+```bash
+pnpm test:playwright
+```
+
+Runs the narrow browser-backed runtime gate for the prior-auth fixture.
 
 ```bash
 uv run pytest
@@ -154,4 +167,5 @@ coverage/
 It does not remove dependencies or source files.
 
 ## Optional agent evaluation
+
 Live provider-backed agent evaluation is not implemented. Normal verification is API-key-free.

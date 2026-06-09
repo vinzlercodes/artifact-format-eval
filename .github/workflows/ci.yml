@@ -21,10 +21,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm validate
       - run: pnpm typecheck
-      - run: pnpm exec playwright install chromium
-      - run: pnpm benchmark
+      - run: pnpm test
       - run: uv run pytest
+      - run: pnpm benchmark
+      - run: uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/artifact.ipynb
       - run: pnpm doctor --ci
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:playwright
 
   secrets-scan:
     runs-on: ubuntu-latest

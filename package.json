@@ -23,9 +23,10 @@
     "clean": "node --import tsx src/cli.ts clean",
     "typecheck": "tsc --noEmit",
     "python:test": "uv run pytest",
+    "test:playwright": "playwright test tests/playwright",
     "notebook:build": "uv run python -m artifact_eval_notebook build --case prior-auth",
     "notebook:validate": "uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/artifact.ipynb",
-    "verify": "pnpm validate && pnpm typecheck && pnpm test && uv run pytest && pnpm benchmark && uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/artifact.ipynb && pnpm doctor --ci"
+    "verify": "pnpm validate && pnpm typecheck && pnpm test && uv run pytest && pnpm benchmark && uv run python -m artifact_eval_notebook validate results/prior-auth/baseline/artifact.ipynb && pnpm doctor --ci && pnpm test:playwright"
   },
   "dependencies": {
     "ajv": "^8.17.1",

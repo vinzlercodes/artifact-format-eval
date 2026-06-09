@@ -16,3 +16,5 @@ coverage/
 results/
 site-dist/
 .playwright-artifacts/
+playwright-report/
+test-results/
